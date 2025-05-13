@@ -11,7 +11,6 @@ const inter = Inter({ subsets: ["latin", "cyrillic"] })
 export const metadata = {
   title: "Fitness Portal - Ваш путь к здоровью и красоте",
   description: "Фитнес-портал с тренировками, советами по питанию и здоровому образу жизни",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({

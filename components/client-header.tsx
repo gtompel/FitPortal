@@ -17,10 +17,15 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 import { useMobile } from "@/hooks/use-mobile"
-import { Menu } from "lucide-react"
+import { Menu, AlertTriangle } from "lucide-react"
 import type { Session } from "@supabase/supabase-js"
 
-export default function ClientHeader({ session }: { session: Session | null }) {
+interface ClientHeaderProps {
+  session: Session | null
+  supabaseError?: boolean
+}
+
+export default function ClientHeader({ session, supabaseError = false }: ClientHeaderProps) {
   const isMobile = useMobile()
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
@@ -103,7 +108,12 @@ export default function ClientHeader({ session }: { session: Session | null }) {
                   Планировщик
                 </Link>
                 <div className="pt-4 space-y-2">
-                  {session ? (
+                  {supabaseError ? (
+                    <div className="flex items-center gap-2 text-amber-500 dark:text-amber-400 text-sm p-2 bg-amber-50 dark:bg-amber-900/20 rounded-md">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span>Авторизация недоступна</span>
+                    </div>
+                  ) : session ? (
                     <>
                       <Button asChild className="w-full bg-green-600 hover:bg-green-700 text-white">
                         <Link href="/dashboard">Личный кабинет</Link>
@@ -259,7 +269,12 @@ export default function ClientHeader({ session }: { session: Session | null }) {
           </NavigationMenu>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            {session ? (
+            {supabaseError ? (
+              <div className="flex items-center gap-2 text-amber-500 dark:text-amber-400 text-sm p-2 bg-amber-50 dark:bg-amber-900/20 rounded-md">
+                <AlertTriangle className="h-4 w-4" />
+                <span>Авторизация недоступна</span>
+              </div>
+            ) : session ? (
               <>
                 <Button asChild variant="ghost" size="sm">
                   <Link href="/dashboard">Личный кабинет</Link>

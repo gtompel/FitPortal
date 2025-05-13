@@ -12,9 +12,30 @@ const createClientClient = () => {
     return {
       auth: {
         getSession: () => Promise.resolve({ data: { session: null } }),
-        signInWithPassword: () => Promise.resolve({ data: {}, error: null }),
-        signInWithOAuth: () => Promise.resolve({ data: {}, error: null }),
-        signUp: () => Promise.resolve({ data: { user: null }, error: null }),
+        signInWithPassword: () =>
+          Promise.resolve({
+            data: {},
+            error: {
+              message: "Supabase credentials are missing. Authentication is currently unavailable.",
+              status: 400,
+            },
+          }),
+        signInWithOAuth: () =>
+          Promise.resolve({
+            data: {},
+            error: {
+              message: "Supabase credentials are missing. Authentication is currently unavailable.",
+              status: 400,
+            },
+          }),
+        signUp: () =>
+          Promise.resolve({
+            data: { user: null },
+            error: {
+              message: "Supabase credentials are missing. Registration is currently unavailable.",
+              status: 400,
+            },
+          }),
         signOut: () => Promise.resolve({ error: null }),
       },
       from: () => ({
@@ -22,7 +43,14 @@ const createClientClient = () => {
           eq: () => ({
             single: () => Promise.resolve({ data: null, error: null }),
           }),
-          insert: () => Promise.resolve({ data: null, error: null }),
+          insert: () =>
+            Promise.resolve({
+              data: null,
+              error: {
+                message: "Supabase credentials are missing. Database operations are currently unavailable.",
+                status: 400,
+              },
+            }),
         }),
       }),
     } as any

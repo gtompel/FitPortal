@@ -88,7 +88,7 @@ export default function Footer() {
                   href="/planner"
                   className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 text-sm"
                 >
-                  Планировщик
+                  Плани��овщик
                 </Link>
               </li>
             </ul>

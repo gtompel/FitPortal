@@ -131,7 +131,7 @@ export default function Home() {
               Популярные тренировки
             </h2>
             <p className="max-w-[900px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Изучите нашу коллекцию лучших тренировок для всех уровней подготовки.
+              Изучите нашу коллекцию лучших трениров��к для всех уровней подготовки.
             </p>
           </div>
           <FeaturedWorkouts />

@@ -14,14 +14,22 @@ import { toast } from "@/components/ui/use-toast"
 import { ArrowLeft, Facebook, Github, Loader2 } from "lucide-react"
 import { getClientClient } from "@/lib/supabase/client"
 
+// More strict email validation regex
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
 const formSchema = z
   .object({
     name: z.string().min(2, {
       message: "Имя должно содержать минимум 2 символа",
     }),
-    email: z.string().email({
-      message: "Введите корректный email адрес",
-    }),
+    email: z
+      .string()
+      .email({
+        message: "Введите корректный email адрес",
+      })
+      .regex(EMAIL_REGEX, {
+        message: "Введите действительный email адрес (например, user@example.com)",
+      }),
     password: z.string().min(8, {
       message: "Пароль должен содержать минимум 8 символов",
     }),
@@ -35,9 +43,13 @@ const formSchema = z
     path: ["confirmPassword"],
   })
 
+// List of domains that might be rejected by Supabase
+const POTENTIALLY_BLOCKED_DOMAINS = ["test.ru", "test.com", "example.com", "example.ru"]
+
 export default function RegisterPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const supabase = getClientClient()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -51,10 +63,30 @@ export default function RegisterPage() {
     },
   })
 
+  // Check if email domain might be rejected
+  const checkEmailDomain = (email: string) => {
+    const domain = email.split("@")[1]
+    if (POTENTIALLY_BLOCKED_DOMAINS.includes(domain)) {
+      return `Email с доменом ${domain} может быть отклонен. Пожалуйста, используйте реальный email адрес.`
+    }
+    return null
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
+    setErrorMsg(null)
+
+    // Check for potentially blocked domains
+    const domainWarning = checkEmailDomain(values.email)
+    if (domainWarning) {
+      setErrorMsg(domainWarning)
+      setIsLoading(false)
+      return
+    }
 
     try {
+      console.log("Attempting to register with:", { email: values.email, password: "***" })
+
       // Register the user with Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email: values.email,
@@ -63,10 +95,22 @@ export default function RegisterPage() {
           data: {
             full_name: values.name,
           },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       })
 
       if (error) {
+        console.error("Supabase signup error:", error)
+
+        // Handle specific error messages
+        if (error.message.includes("invalid")) {
+          setErrorMsg(
+            `Email "${values.email}" отклонен. Пожалуйста, используйте действительный email адрес, например gmail.com или другой реальный домен.`,
+          )
+        } else {
+          setErrorMsg(error.message)
+        }
+
         toast({
           title: "Ошибка регистрации",
           description: error.message,
@@ -75,9 +119,12 @@ export default function RegisterPage() {
         return
       }
 
+      console.log("Signup successful, user data:", data)
+
       // Create a profile for the user
       if (data.user) {
         try {
+          console.log("Creating profile for user:", data.user.id)
           const { error: profileError } = await supabase.from("profiles").insert({
             id: data.user.id,
             full_name: values.name,
@@ -88,7 +135,7 @@ export default function RegisterPage() {
             console.error("Error creating profile:", profileError)
           }
         } catch (profileError) {
-          console.error("Error creating profile:", profileError)
+          console.error("Exception creating profile:", profileError)
         }
       }
 
@@ -98,6 +145,8 @@ export default function RegisterPage() {
       })
       router.push("/login")
     } catch (error) {
+      console.error("Exception during registration:", error)
+      setErrorMsg("Произошла ошибка при регистрации. Пожалуйста, попробуйте позже.")
       toast({
         title: "Ошибка",
         description: "Произошла ошибка при регистрации",
@@ -118,6 +167,7 @@ export default function RegisterPage() {
       })
 
       if (error) {
+        console.error("GitHub OAuth error:", error)
         toast({
           title: "Ошибка входа",
           description: error.message,
@@ -125,6 +175,7 @@ export default function RegisterPage() {
         })
       }
     } catch (error) {
+      console.error("Exception during GitHub login:", error)
       toast({
         title: "Ошибка",
         description: "Произошла ошибка при входе через GitHub",
@@ -180,6 +231,13 @@ export default function RegisterPage() {
             </h1>
             <p className="text-sm text-muted-foreground">Заполните форму ниже, чтобы создать аккаунт</p>
           </div>
+
+          {errorMsg && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded-md text-red-600 dark:text-red-400 text-sm">
+              {errorMsg}
+            </div>
+          )}
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -202,8 +260,21 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="name@example.com" {...field} />
+                      <Input
+                        placeholder="name@gmail.com"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e)
+                          // Clear domain warning when email changes
+                          if (errorMsg && errorMsg.includes("домен")) {
+                            setErrorMsg(null)
+                          }
+                        }}
+                      />
                     </FormControl>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Используйте действительный email адрес (например, gmail.com, outlook.com)
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
