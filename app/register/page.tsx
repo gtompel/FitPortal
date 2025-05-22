@@ -6,30 +6,22 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { toast } from "@/components/ui/use-toast"
-import { ArrowLeft, Facebook, Github, Loader2 } from "lucide-react"
-import { getClientClient } from "@/lib/supabase/client"
-
-// More strict email validation regex
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+import { ArrowLeft, Github, Loader2 } from "lucide-react"
 
 const formSchema = z
   .object({
     name: z.string().min(2, {
       message: "Имя должно содержать минимум 2 символа",
     }),
-    email: z
-      .string()
-      .email({
-        message: "Введите корректный email адрес",
-      })
-      .regex(EMAIL_REGEX, {
-        message: "Введите действительный email адрес (например, user@example.com)",
-      }),
+    email: z.string().email({
+      message: "Введите корректный email адрес",
+    }),
     password: z.string().min(8, {
       message: "Пароль должен содержать минимум 8 символов",
     }),
@@ -43,14 +35,9 @@ const formSchema = z
     path: ["confirmPassword"],
   })
 
-// List of domains that might be rejected by Supabase
-const POTENTIALLY_BLOCKED_DOMAINS = ["test.ru", "test.com", "example.com", "example.ru"]
-
 export default function RegisterPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [errorMsg, setErrorMsg] = useState<string | null>(null)
-  const supabase = getClientClient()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,93 +50,50 @@ export default function RegisterPage() {
     },
   })
 
-  // Check if email domain might be rejected
-  const checkEmailDomain = (email: string) => {
-    const domain = email.split("@")[1]
-    if (POTENTIALLY_BLOCKED_DOMAINS.includes(domain)) {
-      return `Email с доменом ${domain} может быть отклонен. Пожалуйста, используйте реальный email адрес.`
-    }
-    return null
-  }
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    setErrorMsg(null)
-
-    // Check for potentially blocked domains
-    const domainWarning = checkEmailDomain(values.email)
-    if (domainWarning) {
-      setErrorMsg(domainWarning)
-      setIsLoading(false)
-      return
-    }
 
     try {
-      console.log("Attempting to register with:", { email: values.email, password: "***" })
-
-      // Register the user with Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: {
-          data: {
-            full_name: values.name,
-          },
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          password: values.password,
+        }),
       })
 
-      if (error) {
-        console.error("Supabase signup error:", error)
+      const data = await response.json()
 
-        // Handle specific error messages
-        if (error.message.includes("invalid")) {
-          setErrorMsg(
-            `Email "${values.email}" отклонен. Пожалуйста, используйте действительный email адрес, например gmail.com или другой реальный домен.`,
-          )
-        } else {
-          setErrorMsg(error.message)
-        }
-
-        toast({
-          title: "Ошибка регистрации",
-          description: error.message,
-          variant: "destructive",
-        })
-        return
-      }
-
-      console.log("Signup successful, user data:", data)
-
-      // Create a profile for the user
-      if (data.user) {
-        try {
-          console.log("Creating profile for user:", data.user.id)
-          const { error: profileError } = await supabase.from("profiles").insert({
-            id: data.user.id,
-            full_name: values.name,
-            username: values.email.split("@")[0],
-          })
-
-          if (profileError) {
-            console.error("Error creating profile:", profileError)
-          }
-        } catch (profileError) {
-          console.error("Exception creating profile:", profileError)
-        }
+      if (!response.ok) {
+        throw new Error(data.message || "Ошибка при регистрации")
       }
 
       toast({
         title: "Регистрация успешна",
-        description: "Проверьте вашу почту для подтверждения аккаунта",
+        description: "Вы успешно зарегистрировались",
       })
-      router.push("/login")
+
+      // Автоматически входим после регистрации
+      const result = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        throw new Error(result.error)
+      }
+
+      router.push("/dashboard")
+      router.refresh()
     } catch (error) {
-      console.error("Exception during registration:", error)
-      setErrorMsg("Произошла ошибка при регистрации. Пожалуйста, попробуйте позже.")
       toast({
-        title: "Ошибка",
-        description: "Произошла ошибка при регистрации",
+        title: "Ошибка регистрации",
+        description: error instanceof Error ? error.message : "Произошла ошибка при регистрации",
         variant: "destructive",
       })
     } finally {
@@ -159,23 +103,10 @@ export default function RegisterPage() {
 
   async function handleGithubLogin() {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "github",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
+      await signIn("github", {
+        callbackUrl: "/dashboard",
       })
-
-      if (error) {
-        console.error("GitHub OAuth error:", error)
-        toast({
-          title: "Ошибка входа",
-          description: error.message,
-          variant: "destructive",
-        })
-      }
     } catch (error) {
-      console.error("Exception during GitHub login:", error)
       toast({
         title: "Ошибка",
         description: "Произошла ошибка при входе через GitHub",
@@ -232,12 +163,6 @@ export default function RegisterPage() {
             <p className="text-sm text-muted-foreground">Заполните форму ниже, чтобы создать аккаунт</p>
           </div>
 
-          {errorMsg && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded-md text-red-600 dark:text-red-400 text-sm">
-              {errorMsg}
-            </div>
-          )}
-
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -260,21 +185,8 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="name@gmail.com"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e)
-                          // Clear domain warning when email changes
-                          if (errorMsg && errorMsg.includes("домен")) {
-                            setErrorMsg(null)
-                          }
-                        }}
-                      />
+                      <Input placeholder="name@gmail.com" {...field} />
                     </FormControl>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Используйте действительный email адрес (например, gmail.com, outlook.com)
-                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -359,10 +271,6 @@ export default function RegisterPage() {
             <Button variant="outline" className="w-full" onClick={handleGithubLogin}>
               <Github className="mr-2 h-4 w-4" />
               GitHub
-            </Button>
-            <Button variant="outline" className="w-full">
-              <Facebook className="mr-2 h-4 w-4" />
-              Facebook
             </Button>
           </div>
           <p className="px-8 text-center text-sm text-muted-foreground">

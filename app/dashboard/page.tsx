@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase/server"
+import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -6,26 +6,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowRight, Calendar, Dumbbell, LineChart, ListChecks, Trophy, User } from "lucide-react"
 
-const levelMap = {
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+type FitnessLevel = 'beginner' | 'intermediate' | 'advanced'
+
+const levelMap: Record<FitnessLevel, string> = {
   beginner: "Начальный",
   intermediate: "Средний",
   advanced: "Продвинутый",
 }
 
 export default async function DashboardPage() {
-  const supabase = createServerClient()
+  const user = await prisma.user.findFirst({
+    where: {
+      email: "test@test.ru" // Временно для теста
+    }
+  })
 
-  // Check if user is authenticated
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  if (!session) {
+  if (!user) {
     redirect("/login")
   }
-
-  // Get user profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", session.user.id).single()
 
   return (
     <div className="container px-4 py-8 md:px-6 md:py-12">
@@ -34,7 +35,7 @@ export default async function DashboardPage() {
           Личный кабинет
         </h1>
         <p className="text-gray-600 dark:text-gray-300 max-w-3xl">
-          Добро пожаловать, {profile?.full_name || session.user.email}! Здесь вы можете отслеживать свой прогресс и
+          Добро пожаловать, {user.name}! Здесь вы можете отслеживать свой прогресс и
           управлять тренировками.
         </p>
       </div>
@@ -155,8 +156,8 @@ export default async function DashboardPage() {
                       <User className="h-10 w-10 text-gray-500" />
                     </div>
                     <div>
-                      <h3 className="font-medium">{profile?.full_name || "Пользователь"}</h3>
-                      <p className="text-sm text-gray-500">{session.user.email}</p>
+                      <h3 className="font-medium">{user.name || "Пользователь"}</h3>
+                      <p className="text-sm text-gray-500">{user.email}</p>
                     </div>
                   </div>
                   <Button variant="outline" className="w-full">
@@ -174,7 +175,7 @@ export default async function DashboardPage() {
                 <div className="p-4 border rounded-md">
                   <h4 className="font-medium mb-1">Уровень подготовки</h4>
                   <p className="text-sm text-gray-500 mb-2">
-                    {profile?.fitness_level ? levelMap[profile.fitness_level] : "Не указан"}
+                    {user.fitnessLevel && levelMap[user.fitnessLevel as FitnessLevel] || "Не указан"}
                   </p>
                   <Button variant="outline" size="sm">
                     Изменить

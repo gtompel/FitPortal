@@ -17,15 +17,14 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 import { useMobile } from "@/hooks/use-mobile"
-import { Menu, AlertTriangle } from "lucide-react"
-import type { Session } from "@supabase/supabase-js"
+import { Menu } from "lucide-react"
+import { signOut, useSession } from "next-auth/react"
 
 interface ClientHeaderProps {
-  session: Session | null
-  supabaseError?: boolean
+  session: any
 }
 
-export default function ClientHeader({ session, supabaseError = false }: ClientHeaderProps) {
+export default function ClientHeader({ session }: ClientHeaderProps) {
   const isMobile = useMobile()
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
@@ -108,18 +107,17 @@ export default function ClientHeader({ session, supabaseError = false }: ClientH
                   Планировщик
                 </Link>
                 <div className="pt-4 space-y-2">
-                  {supabaseError ? (
-                    <div className="flex items-center gap-2 text-amber-500 dark:text-amber-400 text-sm p-2 bg-amber-50 dark:bg-amber-900/20 rounded-md">
-                      <AlertTriangle className="h-4 w-4" />
-                      <span>Авторизация недоступна</span>
-                    </div>
-                  ) : session ? (
+                  {session ? (
                     <>
                       <Button asChild className="w-full bg-green-600 hover:bg-green-700 text-white">
                         <Link href="/dashboard">Личный кабинет</Link>
                       </Button>
-                      <Button asChild variant="outline" className="w-full">
-                        <Link href="/logout">Выйти</Link>
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={() => signOut({ callbackUrl: "/" })}
+                      >
+                        Выйти
                       </Button>
                     </>
                   ) : (
@@ -195,7 +193,7 @@ export default function ClientHeader({ session, supabaseError = false }: ClientH
                         >
                           <div className="text-sm font-medium leading-none">Силовые</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            Тренировки на развитие силы и наращивание мышц
+                            Тренировки для набора мышечной массы
                           </p>
                         </a>
                       </NavigationMenuLink>
@@ -206,22 +204,9 @@ export default function ClientHeader({ session, supabaseError = false }: ClientH
                           className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                           href="/workouts/flexibility"
                         >
-                          <div className="text-sm font-medium leading-none">Гибкость</div>
+                          <div className="text-sm font-medium leading-none">Растяжка</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            Программы для растяжки и улучшения гибкости
-                          </p>
-                        </a>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <a
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          href="/workouts/hiit"
-                        >
-                          <div className="text-sm font-medium leading-none">HIIT</div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            Высокоинтенсивные интервальные тренировки
+                            Упражнения для развития гибкости
                           </p>
                         </a>
                       </NavigationMenuLink>
@@ -234,7 +219,7 @@ export default function ClientHeader({ session, supabaseError = false }: ClientH
                   <NavigationMenuLink
                     className={cn(
                       navigationMenuTriggerStyle(),
-                      pathname === "/blog" || pathname.startsWith("/blog/") ? "text-green-600 dark:text-green-400" : "",
+                      pathname === "/blog" ? "text-green-600 dark:text-green-400" : "",
                     )}
                   >
                     Блог
@@ -269,18 +254,17 @@ export default function ClientHeader({ session, supabaseError = false }: ClientH
           </NavigationMenu>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            {supabaseError ? (
-              <div className="flex items-center gap-2 text-amber-500 dark:text-amber-400 text-sm p-2 bg-amber-50 dark:bg-amber-900/20 rounded-md">
-                <AlertTriangle className="h-4 w-4" />
-                <span>Авторизация недоступна</span>
-              </div>
-            ) : session ? (
+            {session ? (
               <>
                 <Button asChild variant="ghost" size="sm">
                   <Link href="/dashboard">Личный кабинет</Link>
                 </Button>
-                <Button asChild size="sm" className="bg-green-600 hover:bg-green-700 text-white">
-                  <Link href="/logout">Выйти</Link>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                >
+                  Выйти
                 </Button>
               </>
             ) : (

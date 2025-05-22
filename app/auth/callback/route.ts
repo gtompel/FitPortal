@@ -1,4 +1,5 @@
 import { createServerClient } from "@/lib/supabase/server"
+import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
@@ -6,14 +7,15 @@ export async function GET(request: Request) {
   const code = requestUrl.searchParams.get("code")
 
   if (code) {
-    try {
-      const supabase = createServerClient()
-      await supabase.auth.exchangeCodeForSession(code)
-    } catch (error) {
-      console.error("Error exchanging code for session:", error)
+    const cookieStore = cookies()
+    const supabase = createServerClient()
+    
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    
+    if (!error) {
+      return NextResponse.redirect(new URL("/dashboard", requestUrl.origin))
     }
   }
 
-  // URL to redirect to after sign in process completes
-  return NextResponse.redirect(requestUrl.origin)
+  return NextResponse.redirect(new URL("/login", requestUrl.origin))
 }
