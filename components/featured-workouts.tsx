@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Clock, Flame, Star } from "lucide-react"
-import { prisma } from "@/lib/prisma"
+import { db } from "@/lib/db"
 
 // Mock data for workouts when database is not available
 const mockWorkouts = [
@@ -53,7 +53,7 @@ export default async function FeaturedWorkouts() {
   let workouts = mockWorkouts
 
   try {
-    const data = await prisma.workout.findMany({
+    const data = await db.workout.findMany({
       take: 4,
       orderBy: { createdAt: 'desc' },
       include: {

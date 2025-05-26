@@ -3,68 +3,40 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/use-toast"
-import { ArrowLeft, Github, Loader2 } from "lucide-react"
-
-const formSchema = z.object({
-  email: z.string().email({
-    message: "Введите корректный email адрес",
-  }),
-  password: z.string().min(6, {
-    message: "Пароль должен содержать минимум 6 символов",
-  }),
-})
+import { toast } from "sonner"
+import { signIn } from "next-auth/react"
+import { ArrowLeft, Github } from "lucide-react"
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  })
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
     setIsLoading(true)
+
+    const formData = new FormData(event.currentTarget)
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
 
     try {
       const result = await signIn("credentials", {
-        email: values.email,
-        password: values.password,
-        redirect: false,
+        email,
+        password,
+        redirect: false
       })
 
       if (result?.error) {
-        toast({
-          title: "Ошибка входа",
-          description: result.error,
-          variant: "destructive",
-        })
+        toast.error("Неверный email или пароль")
         return
       }
 
-      toast({
-        title: "Авторизация успешна",
-        description: "Вы успешно вошли в систему",
-      })
       router.push("/dashboard")
       router.refresh()
     } catch (error) {
-      toast({
-        title: "Ошибка",
-        description: "Произошла ошибка при входе",
-        variant: "destructive",
-      })
+      toast.error("Произошла ошибка при входе")
     } finally {
       setIsLoading(false)
     }
@@ -76,11 +48,7 @@ export default function LoginPage() {
         callbackUrl: "/dashboard",
       })
     } catch (error) {
-      toast({
-        title: "Ошибка",
-        description: "Произошла ошибка при входе через GitHub",
-        variant: "destructive",
-      })
+      toast.error("Произошла ошибка при входе через GitHub")
     }
   }
 
@@ -94,40 +62,35 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Input
+              id="email"
               name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="name@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              placeholder="Email"
+              type="email"
+              autoCapitalize="none"
+              autoComplete="email"
+              autoCorrect="off"
+              disabled={isLoading}
+              required
             />
-            <FormField
-              control={form.control}
+          </div>
+          <div className="space-y-2">
+            <Input
+              id="password"
               name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Пароль</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              placeholder="Пароль"
+              type="password"
+              autoComplete="current-password"
+              disabled={isLoading}
+              required
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Войти
-            </Button>
-          </form>
-        </Form>
+          </div>
+          <Button className="w-full" type="submit" disabled={isLoading}>
+            {isLoading ? "Вход..." : "Войти"}
+          </Button>
+        </form>
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">

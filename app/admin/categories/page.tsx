@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma"
+import { db } from "@/lib/db"
 import { getServerSession } from "next-auth"
 import { authOptions } from "../../api/auth/[...nextauth]/route"
 import { redirect } from "next/navigation"
@@ -20,7 +20,7 @@ export default async function CategoriesPage() {
     redirect("/dashboard")
   }
 
-  const categories = await prisma.category.findMany({
+  const categories = await db.category.findMany({
     orderBy: {
       name: "asc"
     }

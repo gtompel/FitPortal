@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma"
+import { db } from "@/lib/db"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -15,7 +15,7 @@ const levelMap: Record<string, string> = {
 }
 
 export default async function WorkoutsPage() {
-  const workouts = await prisma.workout.findMany({
+  const workouts = await db.workout.findMany({
     include: {
       category: true
     },

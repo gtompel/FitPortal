@@ -1,102 +1,69 @@
-import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
-import { authOptions } from "../api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { db } from "@/lib/db"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Dumbbell, Tag } from "lucide-react"
+import { Dumbbell, BookOpen, Utensils, Calendar } from "lucide-react"
+
+export const revalidate = 3600 // Кэшируем на 1 час
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions)
 
-  if (!session || session.user.role !== "admin") {
+  if (!session?.user || session.user.role !== "ADMIN") {
     redirect("/dashboard")
   }
 
-  const [usersCount, workoutsCount, categoriesCount] = await Promise.all([
-    prisma.user.count(),
-    prisma.workout.count(),
-    prisma.category.count(),
+  const [workoutsCount, blogPostsCount, nutritionPlansCount, plannerEventsCount] = await Promise.all([
+    db.workout.count(),
+    db.post.count(),
+    db.plan.count(),
+    db.plannerEvent.count()
   ])
 
+  const stats = [
+    {
+      title: "Тренировки",
+      value: workoutsCount,
+      icon: Dumbbell
+    },
+    {
+      title: "Статьи блога",
+      value: blogPostsCount,
+      icon: BookOpen
+    },
+    {
+      title: "Планы питания",
+      value: nutritionPlansCount,
+      icon: Utensils
+    },
+    {
+      title: "События",
+      value: plannerEventsCount,
+      icon: Calendar
+    }
+  ]
+
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8">Админ-панель</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Пользователи</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{usersCount}</div>
-            <Link href="/admin/users">
-              <Button variant="link" className="p-0">Управление пользователями</Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Тренировки</CardTitle>
-            <Dumbbell className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{workoutsCount}</div>
-            <Link href="/admin/workouts">
-              <Button variant="link" className="p-0">Управление тренировками</Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Категории</CardTitle>
-            <Tag className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{categoriesCount}</div>
-            <Link href="/admin/categories">
-              <Button variant="link" className="p-0">Управление категориями</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Быстрые действия</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Link href="/admin/workouts/create">
-              <Button className="w-full">Добавить тренировку</Button>
-            </Link>
-            <Link href="/admin/categories/create">
-              <Button className="w-full">Добавить категорию</Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Статистика</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>Новых пользователей сегодня:</span>
-                <span className="font-medium">0</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Активных тренировок:</span>
-                <span className="font-medium">{workoutsCount}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">Обзор</h1>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => {
+          const Icon = stat.icon
+          return (
+            <Card key={stat.title}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {stat.title}
+                </CardTitle>
+                <Icon className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
     </div>
   )

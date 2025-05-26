@@ -1,47 +1,55 @@
-import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
+import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
+import { UserRole } from "@prisma/client"
 
 export async function POST(req: Request) {
   try {
     const { name, email, password } = await req.json()
 
     if (!name || !email || !password) {
-      return new NextResponse("Необходимо заполнить все поля", { status: 400 })
+      return NextResponse.json(
+        { error: "Необходимо заполнить все поля" },
+        { status: 400 }
+      )
     }
 
-    // Проверяем, существует ли пользователь
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await db.user.findUnique({
       where: {
-        email,
-      },
+        email: email
+      }
     })
 
     if (existingUser) {
-      return new NextResponse("Пользователь с таким email уже существует", { status: 400 })
+      return NextResponse.json(
+        { error: "Пользователь с таким email уже существует" },
+        { status: 400 }
+      )
     }
 
-    // Хешируем пароль
-    const hashedPassword = await bcrypt.hash(password, 12)
+    const hashedPassword = await bcrypt.hash(password, 10)
 
-    // Создаем пользователя
-    const user = await prisma.user.create({
+    const user = await db.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
-      },
+        role: UserRole.USER
+      }
     })
 
-    // Возвращаем только публичные данные
     return NextResponse.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      createdAt: user.createdAt,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email
+      }
     })
   } catch (error) {
     console.error("[REGISTER_ERROR]", error)
-    return new NextResponse("Внутренняя ошибка сервера", { status: 500 })
+    return NextResponse.json(
+      { error: "Внутренняя ошибка сервера" },
+      { status: 500 }
+    )
   }
 } 

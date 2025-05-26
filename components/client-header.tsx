@@ -250,6 +250,20 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
+              {session?.user?.role === "ADMIN" && (
+                <NavigationMenuItem>
+                  <Link href="/admin" legacyBehavior passHref>
+                    <NavigationMenuLink
+                      className={cn(
+                        navigationMenuTriggerStyle(),
+                        pathname.startsWith("/admin") ? "text-green-600 dark:text-green-400" : "",
+                      )}
+                    >
+                      Админ панель
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+              )}
             </NavigationMenuList>
           </NavigationMenu>
           <div className="flex items-center gap-2">

@@ -1,28 +1,36 @@
 import { NextResponse } from "next/server"
 import { getToken } from "next-auth/jwt"
-import { NextRequest } from "next/server"
+import { NextRequestWithAuth } from "next-auth/middleware"
 
-export async function middleware(request: NextRequest) {
+export default async function middleware(request: NextRequestWithAuth) {
   const token = await getToken({ req: request })
-  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin")
-  const isAuthRoute = request.nextUrl.pathname.startsWith("/login") || request.nextUrl.pathname.startsWith("/register")
+  const isAuth = !!token
+  const isAuthPage = request.nextUrl.pathname.startsWith("/login") || 
+                    request.nextUrl.pathname.startsWith("/register")
+  const isAdminPage = request.nextUrl.pathname.startsWith("/admin")
+  const isUserPage = request.nextUrl.pathname.startsWith("/dashboard")
 
-  // Если пользователь не авторизован и пытается зайти на защищенные маршруты
-  if (!token && !isAuthRoute) {
-    return NextResponse.redirect(new URL("/login", request.url))
+  if (isAuthPage) {
+    if (isAuth) {
+      return NextResponse.redirect(new URL("/dashboard", request.url))
+    }
+    return null
   }
 
-  // Если пользователь авторизован и пытается зайти на страницы авторизации
-  if (token && isAuthRoute) {
+  if (!isAuth) {
+    let from = request.nextUrl.pathname
+    if (request.nextUrl.search) {
+      from += request.nextUrl.search
+    }
+
+    return NextResponse.redirect(
+      new URL(`/login?from=${encodeURIComponent(from)}`, request.url)
+    )
+  }
+
+  if (isAdminPage && token?.role !== "ADMIN") {
     return NextResponse.redirect(new URL("/dashboard", request.url))
   }
-
-  // Если пользователь не админ и пытается зайти в админ-панель
-  if (isAdminRoute && token?.role !== "admin") {
-    return NextResponse.redirect(new URL("/dashboard", request.url))
-  }
-
-  return NextResponse.next()
 }
 
 export const config = {

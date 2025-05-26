@@ -1,7 +1,7 @@
-import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
-import { authOptions } from "../../api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
+import { db } from "@/lib/db"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import {
@@ -12,62 +12,61 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { format } from "date-fns"
+import { ru } from "date-fns/locale"
 
 export default async function NutritionPage() {
   const session = await getServerSession(authOptions)
 
-  if (!session?.user || session.user.role !== "admin") {
+  if (!session?.user || session.user.role !== "ADMIN") {
     redirect("/dashboard")
   }
 
-  const meals = await prisma.meal.findMany({
+  const plans = await db.nutritionPlan.findMany({
     orderBy: {
       createdAt: "desc"
     }
   })
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Управление питанием</h1>
-        <div className="flex gap-2">
-          <Link href="/admin">
-            <Button variant="outline">Назад</Button>
-          </Link>
-          <Link href="/admin/nutrition/create">
-            <Button>Добавить блюдо</Button>
-          </Link>
-        </div>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Питание</h1>
+        <Button asChild>
+          <Link href="/admin/nutrition/create">Добавить план питания</Link>
+        </Button>
       </div>
 
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
               <TableHead>Название</TableHead>
               <TableHead>Калории</TableHead>
-              <TableHead>Белки</TableHead>
-              <TableHead>Жиры</TableHead>
-              <TableHead>Углеводы</TableHead>
+              <TableHead>Создан</TableHead>
               <TableHead>Действия</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {meals.map((meal) => (
-              <TableRow key={meal.id}>
-                <TableCell>{meal.id}</TableCell>
-                <TableCell>{meal.name}</TableCell>
-                <TableCell>{meal.calories}</TableCell>
-                <TableCell>{meal.protein}g</TableCell>
-                <TableCell>{meal.fat}g</TableCell>
-                <TableCell>{meal.carbs}g</TableCell>
+            {plans.map((plan) => (
+              <TableRow key={plan.id}>
+                <TableCell>{plan.title}</TableCell>
+                <TableCell>{plan.calories}</TableCell>
+                <TableCell>
+                  {format(plan.createdAt, "d MMMM yyyy", { locale: ru })}
+                </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Link href={`/admin/nutrition/${meal.id}/edit`}>
-                      <Button variant="outline" size="sm">Редактировать</Button>
-                    </Link>
-                    <Button variant="destructive" size="sm">Удалить</Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/admin/nutrition/${plan.id}/edit`}>
+                        Редактировать
+                      </Link>
+                    </Button>
+                    <Button variant="destructive" size="sm" asChild>
+                      <Link href={`/admin/nutrition/${plan.id}/delete`}>
+                        Удалить
+                      </Link>
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>

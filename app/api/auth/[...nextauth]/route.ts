@@ -1,14 +1,14 @@
-import { PrismaAdapter } from "@auth/prisma-adapter"
+import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { NextAuthOptions } from "next-auth"
-import NextAuth from "next-auth/next"
+import NextAuth from "next-auth"
 import GithubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { prisma } from "@/lib/prisma"
+import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(db),
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID as string,
@@ -29,7 +29,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Необходимо ввести email и пароль")
         }
 
-        const user = await prisma.user.findUnique({
+        const user = await db.user.findUnique({
           where: {
             email: credentials.email,
           },
@@ -50,6 +50,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           email: user.email,
           image: user.image,
+          role: user.role
         }
       },
     }),
@@ -64,13 +65,15 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        token.id = user.id
         token.role = user.role
       }
       return token
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role as string
+        session.user.id = token.id
+        session.user.role = token.role
       }
       return session
     }
