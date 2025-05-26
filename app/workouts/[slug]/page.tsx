@@ -34,9 +34,10 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: WorkoutPageProps): Promise<Metadata> {
+  const { slug } = params
   const category = await db.category.findFirst({
     where: {
-      slug: params.slug
+      slug
     }
   })
 
@@ -53,9 +54,10 @@ export async function generateMetadata({ params }: WorkoutPageProps): Promise<Me
 }
 
 export default async function WorkoutPage({ params }: WorkoutPageProps) {
+  const { slug } = params
   const category = await db.category.findFirst({
     where: {
-      slug: params.slug
+      slug
     }
   })
 

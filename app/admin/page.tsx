@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { db } from "@/lib/db"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dumbbell, BookOpen, Utensils, Calendar, Plus } from "lucide-react"
+import { Dumbbell, BookOpen, Utensils, Calendar, Plus, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -16,11 +16,12 @@ export default async function AdminPage() {
     redirect("/dashboard")
   }
 
-  const [workoutsCount, blogPostsCount, nutritionPlansCount, plannerEventsCount] = await Promise.all([
+  const [workoutsCount, blogPostsCount, nutritionPlansCount, plannerEventsCount, categoriesCount] = await Promise.all([
     db.workout.count(),
     db.post.count(),
     db.plan.count(),
-    db.plannerEvent.count()
+    db.plannerEvent.count(),
+    db.category.count()
   ])
 
   const stats = [
@@ -29,6 +30,12 @@ export default async function AdminPage() {
       value: workoutsCount,
       icon: Dumbbell,
       href: "/admin/workouts"
+    },
+    {
+      title: "Категории",
+      value: categoriesCount,
+      icon: Tag,
+      href: "/admin/categories"
     },
     {
       title: "Статьи блога",

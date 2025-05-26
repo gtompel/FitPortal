@@ -38,6 +38,11 @@ export default async function CategoriesPage() {
               <CardTitle>{category.name}</CardTitle>
             </CardHeader>
             <CardContent>
+              {category.description && (
+                <p className="text-sm text-muted-foreground mb-4">
+                  {category.description}
+                </p>
+              )}
               <div className="mt-4 flex justify-end">
                 <Button asChild variant="outline">
                   <Link href={`/admin/categories/${category.id}`}>Редактировать</Link>

@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { name } = body
+    const { name, description } = body
 
     if (!name) {
       return new NextResponse("Missing required fields", { status: 400 })
@@ -41,7 +41,8 @@ export async function POST(req: Request) {
     const category = await db.category.create({
       data: {
         name,
-        slug
+        slug,
+        description
       }
     })
 

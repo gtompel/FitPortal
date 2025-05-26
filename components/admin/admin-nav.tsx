@@ -10,7 +10,8 @@ import {
   Utensils,
   Calendar,
   LayoutDashboard,
-  LogOut
+  LogOut,
+  Tag
 } from "lucide-react"
 import { signOut } from "next-auth/react"
 
@@ -24,6 +25,11 @@ const navItems = [
     title: "Тренировки",
     href: "/admin/workouts",
     icon: Dumbbell
+  },
+  {
+    title: "Категории",
+    href: "/admin/categories",
+    icon: Tag
   },
   {
     title: "Блог",
