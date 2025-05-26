@@ -24,9 +24,11 @@ export default function Home() {
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                <Button className="bg-green-600 hover:bg-green-700 text-white">
-                  Начать бесплатно
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                <Button asChild className="bg-green-600 hover:bg-green-700 text-white">
+                  <Link href="/free">
+                    Начать бесплатно
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
                 </Button>
                 <Link
                   href="/workouts"
@@ -131,7 +133,7 @@ export default function Home() {
               Популярные тренировки
             </h2>
             <p className="max-w-[900px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Изучите нашу коллекцию лучших трениров��к для всех уровней подготовки.
+              Изучите нашу коллекцию лучших тренировок для всех уровней подготовки.
             </p>
           </div>
           <FeaturedWorkouts />
@@ -180,8 +182,8 @@ export default function Home() {
           <p className="max-w-[600px] text-green-50 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
             Присоединяйтесь к тысячам людей, уже изменивших свою жизнь с помощью нашего портала.
           </p>
-          <Button size="lg" className="mt-6 bg-white text-green-600 hover:bg-green-50">
-            Зарегистрироваться бесплатно
+          <Button asChild size="lg" className="mt-6 bg-white text-green-600 hover:bg-green-50">
+            <Link href="/free">Начать бесплатно</Link>
           </Button>
         </div>
       </section>

@@ -3,6 +3,21 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { NextResponse } from "next/server"
 
+export async function GET() {
+  try {
+    const categories = await db.category.findMany({
+      orderBy: {
+        name: "asc"
+      }
+    })
+
+    return NextResponse.json(categories)
+  } catch (error) {
+    console.error("[CATEGORIES_GET]", error)
+    return new NextResponse("Internal error", { status: 500 })
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions)
@@ -12,26 +27,27 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { title, description, duration, level, image_url } = body
+    const { name } = body
 
-    if (!title || !description || !duration || !level) {
+    if (!name) {
       return new NextResponse("Missing required fields", { status: 400 })
     }
 
-    const plan = await db.plan.create({
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "")
+
+    const category = await db.category.create({
       data: {
-        title,
-        description,
-        duration: parseInt(duration),
-        level,
-        image_url,
-        userId: session.user.id
+        name,
+        slug
       }
     })
 
-    return NextResponse.json(plan)
+    return NextResponse.json(category)
   } catch (error) {
-    console.error("[NUTRITION_POST]", error)
+    console.error("[CATEGORIES_POST]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 } 

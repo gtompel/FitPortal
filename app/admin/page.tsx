@@ -3,7 +3,9 @@ import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { db } from "@/lib/db"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dumbbell, BookOpen, Utensils, Calendar } from "lucide-react"
+import { Dumbbell, BookOpen, Utensils, Calendar, Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export const revalidate = 3600 // Кэшируем на 1 час
 
@@ -25,22 +27,26 @@ export default async function AdminPage() {
     {
       title: "Тренировки",
       value: workoutsCount,
-      icon: Dumbbell
+      icon: Dumbbell,
+      href: "/admin/workouts"
     },
     {
       title: "Статьи блога",
       value: blogPostsCount,
-      icon: BookOpen
+      icon: BookOpen,
+      href: "/admin/blog"
     },
     {
       title: "Планы питания",
       value: nutritionPlansCount,
-      icon: Utensils
+      icon: Utensils,
+      href: "/admin/nutrition"
     },
     {
       title: "События",
       value: plannerEventsCount,
-      icon: Calendar
+      icon: Calendar,
+      href: "/admin/planner"
     }
   ]
 
@@ -59,7 +65,14 @@ export default async function AdminPage() {
                 <Icon className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <Button asChild variant="ghost" size="icon">
+                    <Link href={stat.href}>
+                      <Plus className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )

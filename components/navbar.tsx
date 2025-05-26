@@ -83,6 +83,9 @@ export function Navbar() {
               <Link href="/login">Войти</Link>
             </Button>
           )}
+          <Button asChild variant="default">
+            <Link href="/free">Начать бесплатно</Link>
+          </Button>
         </div>
       </div>
     </nav>

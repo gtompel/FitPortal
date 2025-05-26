@@ -12,9 +12,9 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { title, description, date, type, image_url } = body
+    const { title, description, start, end } = body
 
-    if (!title || !date || !type) {
+    if (!title || !description || !start || !end) {
       return new NextResponse("Missing required fields", { status: 400 })
     }
 
@@ -22,9 +22,9 @@ export async function POST(req: Request) {
       data: {
         title,
         description,
-        date: new Date(date),
-        type,
-        image_url
+        start: new Date(start),
+        end: new Date(end),
+        userId: session.user.id
       }
     })
 
