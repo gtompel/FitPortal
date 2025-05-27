@@ -8,14 +8,34 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { NutritionPlan } from "@prisma/client"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { nutritionFormSchema } from "@/lib/validations/nutrition"
 
 interface NutritionFormProps {
   initialData?: NutritionPlan
+  isFree?: boolean
 }
 
-export function NutritionForm({ initialData }: NutritionFormProps) {
+export function NutritionForm({ initialData, isFree = false }: NutritionFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+
+  const form = useForm<NutritionFormValues>({
+    resolver: zodResolver(nutritionFormSchema),
+    defaultValues: {
+      title: initialData?.title || "",
+      description: initialData?.description || "",
+      calories: initialData?.calories || 0,
+      protein: initialData?.protein || 0,
+      fat: initialData?.fat || 0,
+      carbs: initialData?.carbs || 0,
+      image_url: initialData?.image_url || "",
+      duration: initialData?.duration || 0,
+      level: initialData?.level || "beginner",
+      isFree: initialData?.isFree || isFree
+    }
+  })
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -30,6 +50,9 @@ export function NutritionForm({ initialData }: NutritionFormProps) {
       fat: parseInt(formData.get("fat") as string),
       carbs: parseInt(formData.get("carbs") as string),
       image_url: formData.get("image_url") || null,
+      duration: parseInt(formData.get("duration") as string),
+      level: formData.get("level") as string,
+      isFree: formData.get("isFree") === "true"
     }
 
     try {
@@ -71,7 +94,7 @@ export function NutritionForm({ initialData }: NutritionFormProps) {
           name="title"
           required
           placeholder="Введите название плана питания"
-          defaultValue={initialData?.title}
+          {...form.register("title")}
         />
       </div>
       <div className="space-y-2">
@@ -80,7 +103,7 @@ export function NutritionForm({ initialData }: NutritionFormProps) {
           id="description"
           name="description"
           placeholder="Введите описание плана питания"
-          defaultValue={initialData?.description || ""}
+          {...form.register("description")}
         />
       </div>
       <div className="grid grid-cols-2 gap-4">
@@ -93,7 +116,7 @@ export function NutritionForm({ initialData }: NutritionFormProps) {
             required
             min="0"
             placeholder="Введите количество калорий"
-            defaultValue={initialData?.calories}
+            {...form.register("calories")}
           />
         </div>
         <div className="space-y-2">
@@ -105,7 +128,7 @@ export function NutritionForm({ initialData }: NutritionFormProps) {
             required
             min="0"
             placeholder="Введите количество белков"
-            defaultValue={initialData?.protein}
+            {...form.register("protein")}
           />
         </div>
       </div>
@@ -119,7 +142,7 @@ export function NutritionForm({ initialData }: NutritionFormProps) {
             required
             min="0"
             placeholder="Введите количество жиров"
-            defaultValue={initialData?.fat}
+            {...form.register("fat")}
           />
         </div>
         <div className="space-y-2">
@@ -131,7 +154,7 @@ export function NutritionForm({ initialData }: NutritionFormProps) {
             required
             min="0"
             placeholder="Введите количество углеводов"
-            defaultValue={initialData?.carbs}
+            {...form.register("carbs")}
           />
         </div>
       </div>
@@ -142,7 +165,43 @@ export function NutritionForm({ initialData }: NutritionFormProps) {
           name="image_url"
           type="url"
           placeholder="Введите URL изображения"
-          defaultValue={initialData?.image_url || ""}
+          {...form.register("image_url")}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="duration">Продолжительность (дней)</Label>
+          <Input
+            id="duration"
+            name="duration"
+            type="number"
+            required
+            min="0"
+            placeholder="Введите продолжительность плана питания"
+            {...form.register("duration")}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="level">Уровень</Label>
+          <select
+            id="level"
+            name="level"
+            required
+            {...form.register("level")}
+          >
+            <option value="beginner">Начальный</option>
+            <option value="intermediate">Средний</option>
+            <option value="advanced">Продвинутый</option>
+          </select>
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="isFree">Бесплатный</Label>
+        <input
+          id="isFree"
+          name="isFree"
+          type="checkbox"
+          {...form.register("isFree")}
         />
       </div>
       <div className="flex gap-4">

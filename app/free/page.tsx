@@ -1,109 +1,118 @@
-import { db } from "@/lib/db"
+import { prisma } from "@/lib/prisma"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dumbbell, BookOpen, Utensils } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export default async function FreePage() {
-  const [workouts, posts, plans] = await Promise.all([
-    db.workout.findMany({
-      take: 3,
-      orderBy: {
-        createdAt: "desc"
+  const [workouts, plans, posts] = await Promise.all([
+    prisma.workout.findMany({
+      where: {
+        isFree: true
+      },
+      include: {
+        category: true
       }
     }),
-    db.post.findMany({
-      take: 3,
-      orderBy: {
-        createdAt: "desc"
+    prisma.plan.findMany({
+      where: {
+        isFree: true
+      },
+      include: {
+        user: true
       }
     }),
-    db.plan.findMany({
-      take: 3,
-      orderBy: {
-        createdAt: "desc"
+    prisma.post.findMany({
+      where: {
+        isFree: true
+      },
+      include: {
+        user: true
       }
     })
   ])
 
   return (
-    <div className="container py-10">
-      <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold mb-4">Бесплатный контент</h1>
-        <p className="text-muted-foreground mb-8">
-          Попробуйте наши бесплатные тренировки, планы питания и статьи
-        </p>
-        <Button asChild size="lg">
-          <Link href="/register">Начать бесплатно</Link>
-        </Button>
-      </div>
+    <div className="container py-8">
+      <h1 className="text-3xl font-bold mb-8">Бесплатные материалы</h1>
+      <Tabs defaultValue="workouts" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="workouts">Тренировки</TabsTrigger>
+          <TabsTrigger value="nutrition">Питание</TabsTrigger>
+          <TabsTrigger value="blog">Блог</TabsTrigger>
+        </TabsList>
 
-      <div className="grid gap-8">
-        <section>
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            <Dumbbell className="h-6 w-6" />
-            Тренировки
-          </h2>
-          <div className="grid gap-4 md:grid-cols-3">
+        <TabsContent value="workouts">
+          <div className="grid gap-4">
             {workouts.map((workout) => (
               <Card key={workout.id}>
                 <CardHeader>
                   <CardTitle>{workout.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">{workout.description}</p>
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>{workout.duration} мин</span>
-                    <span>{workout.level}</span>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm text-gray-500">{workout.category?.name}</p>
+                      <p className="text-sm text-gray-500">{workout.level}</p>
+                    </div>
+                    <Link href={`/workouts/${workout.id}`}>
+                      <Button variant="outline">Подробнее</Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
-        </section>
+        </TabsContent>
 
-        <section>
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            <Utensils className="h-6 w-6" />
-            Планы питания
-          </h2>
-          <div className="grid gap-4 md:grid-cols-3">
+        <TabsContent value="nutrition">
+          <div className="grid gap-4">
             {plans.map((plan) => (
               <Card key={plan.id}>
                 <CardHeader>
                   <CardTitle>{plan.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">{plan.description}</p>
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>{plan.duration} дней</span>
-                    <span>{plan.level}</span>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm text-gray-500">{plan.level}</p>
+                      <p className="text-sm text-gray-500">{plan.duration} дней</p>
+                    </div>
+                    <Link href={`/nutrition/${plan.id}`}>
+                      <Button variant="outline">Подробнее</Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
-        </section>
+        </TabsContent>
 
-        <section>
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            <BookOpen className="h-6 w-6" />
-            Статьи
-          </h2>
-          <div className="grid gap-4 md:grid-cols-3">
+        <TabsContent value="blog">
+          <div className="grid gap-4">
             {posts.map((post) => (
               <Card key={post.id}>
                 <CardHeader>
                   <CardTitle>{post.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground line-clamp-3">{post.content}</p>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm text-gray-500">{post.user.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(post.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Link href={`/blog/${post.id}`}>
+                      <Button variant="outline">Подробнее</Button>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
-        </section>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 } 

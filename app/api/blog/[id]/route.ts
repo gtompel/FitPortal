@@ -1,43 +1,73 @@
+import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { db } from "@/lib/db"
-import { NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
+import { z } from "zod"
 
-interface BlogRouteProps {
-  params: {
-    id: string
-  }
-}
+const postSchema = z.object({
+  title: z.string().min(1, "Название обязательно"),
+  content: z.string().min(1, "Содержание обязательно"),
+  image_url: z.string().nullable(),
+  isFree: z.boolean()
+})
 
-export async function PATCH(req: Request, { params }: BlogRouteProps) {
+export async function PATCH(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user || session.user.role !== "ADMIN") {
+    if (!session?.user) {
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
-    const body = await req.json()
-    const { title, content, image_url } = body
+    const json = await req.json()
+    const body = postSchema.parse(json)
 
-    if (!title || !content) {
-      return new NextResponse("Missing required fields", { status: 400 })
-    }
-
-    const post = await db.post.update({
+    const post = await prisma.post.update({
       where: {
-        id: params.id
+        id: params.id,
+        userId: session.user.id
       },
       data: {
-        title,
-        content,
-        image_url
+        title: body.title,
+        content: body.content,
+        image_url: body.image_url,
+        isFree: body.isFree
       }
     })
 
     return NextResponse.json(post)
   } catch (error) {
-    console.error("[BLOG_PATCH]", error)
+    if (error instanceof z.ZodError) {
+      return new NextResponse(JSON.stringify(error.issues), { status: 422 })
+    }
+
+    return new NextResponse("Internal error", { status: 500 })
+  }
+}
+
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const post = await prisma.post.findUnique({
+      where: {
+        id: params.id
+      },
+      include: {
+        user: true
+      }
+    })
+
+    if (!post) {
+      return new NextResponse("Not found", { status: 404 })
+    }
+
+    return NextResponse.json(post)
+  } catch (error) {
     return new NextResponse("Internal error", { status: 500 })
   }
 }
@@ -50,7 +80,7 @@ export async function DELETE(req: Request, { params }: BlogRouteProps) {
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
-    const post = await db.post.delete({
+    const post = await prisma.post.delete({
       where: {
         id: params.id
       }

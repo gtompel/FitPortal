@@ -8,14 +8,28 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { BlogPost } from "@prisma/client"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { blogFormSchema } from "@/lib/validations/blog"
 
 interface BlogFormProps {
   initialData?: BlogPost
+  isFree?: boolean
 }
 
-export function BlogForm({ initialData }: BlogFormProps) {
+export function BlogForm({ initialData, isFree = false }: BlogFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+
+  const form = useForm<BlogFormValues>({
+    resolver: zodResolver(blogFormSchema),
+    defaultValues: {
+      title: initialData?.title || "",
+      content: initialData?.content || "",
+      image_url: initialData?.image_url || "",
+      isFree: initialData?.isFree || isFree
+    }
+  })
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -26,6 +40,7 @@ export function BlogForm({ initialData }: BlogFormProps) {
       title: formData.get("title"),
       content: formData.get("content"),
       image_url: formData.get("image_url") || null,
+      isFree: formData.get("isFree") === "true"
     }
 
     try {
@@ -67,7 +82,7 @@ export function BlogForm({ initialData }: BlogFormProps) {
           name="title"
           required
           placeholder="Введите название статьи"
-          defaultValue={initialData?.title}
+          {...form.register("title")}
         />
       </div>
       <div className="space-y-2">
@@ -77,7 +92,7 @@ export function BlogForm({ initialData }: BlogFormProps) {
           name="content"
           required
           placeholder="Введите содержание статьи"
-          defaultValue={initialData?.content}
+          {...form.register("content")}
           className="min-h-[200px]"
         />
       </div>
@@ -88,18 +103,23 @@ export function BlogForm({ initialData }: BlogFormProps) {
           name="image_url"
           type="url"
           placeholder="Введите URL изображения"
-          defaultValue={initialData?.image_url || ""}
+          {...form.register("image_url")}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="isFree">Бесплатное содержание</Label>
+        <input
+          id="isFree"
+          name="isFree"
+          type="checkbox"
+          {...form.register("isFree")}
         />
       </div>
       <div className="flex gap-4">
         <Button type="submit" disabled={loading}>
           {loading
-            ? initialData
-              ? "Сохранение..."
-              : "Создание..."
-            : initialData
-            ? "Сохранить"
-            : "Создать"}
+            ? "Сохранение..."
+            : "Сохранить"}
         </Button>
         <Button
           type="button"

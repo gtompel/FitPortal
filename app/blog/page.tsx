@@ -5,6 +5,9 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 
 export default async function BlogPage() {
   const posts = await db.post.findMany({
+    where: {
+      isFree: false
+    },
     include: {
       user: true
     },

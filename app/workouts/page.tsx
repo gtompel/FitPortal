@@ -16,6 +16,9 @@ const levelMap: Record<string, string> = {
 
 export default async function WorkoutsPage() {
   const workouts = await db.workout.findMany({
+    where: {
+      isFree: false
+    },
     include: {
       category: true,
       user: true
@@ -39,7 +42,7 @@ export default async function WorkoutsPage() {
       <h1 className="text-3xl font-bold mb-8">Тренировки</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {workouts.map((workout) => (
-          <Link href={`/workouts/${workout.category?.slug || 'uncategorized'}`} key={workout.id}>
+          <Link href={`/workouts/${workout.id}`} key={workout.id}>
             <div className="group relative overflow-hidden rounded-lg border bg-white shadow-sm transition-all hover:shadow-md">
               {workout.image_url && (
                 <div className="relative aspect-video">

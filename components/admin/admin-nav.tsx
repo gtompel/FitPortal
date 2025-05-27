@@ -1,8 +1,8 @@
 "use client"
 
+import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Dumbbell,
@@ -28,8 +28,8 @@ const navItems = [
     icon: Dumbbell
   },
   {
-    title: "Бесплатные тренировки",
-    href: "/admin/workouts/free",
+    title: "Бесплатные материалы",
+    href: "/admin/free",
     icon: Gift
   },
   {
@@ -58,7 +58,7 @@ export default function AdminNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="w-64 border-r bg-background p-4">
+    <nav className="w-64 border-r p-4">
       <div className="mb-8">
         <h2 className="text-lg font-semibold">Админ-панель</h2>
       </div>
@@ -68,10 +68,10 @@ export default function AdminNav() {
           return (
             <Button
               key={item.href}
-              variant={pathname === item.href ? "secondary" : "ghost"}
+              variant="ghost"
               className={cn(
                 "w-full justify-start",
-                pathname === item.href && "bg-secondary"
+                pathname === item.href && "bg-accent"
               )}
               asChild
             >

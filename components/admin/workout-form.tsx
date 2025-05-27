@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { Workout } from "@prisma/client"
+import { Category } from "@prisma/client"
 
 const formSchema = z.object({
   title: z.string().min(1, "Название обязательно"),
@@ -31,25 +32,26 @@ const formSchema = z.object({
 })
 
 interface WorkoutFormProps {
-  initialData?: Workout
+  categories: Category[]
+  workout?: Workout
   isFree?: boolean
 }
 
-export function WorkoutForm({ initialData, isFree = false }: WorkoutFormProps) {
+export function WorkoutForm({ categories, workout, isFree = false }: WorkoutFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: initialData?.title || "",
-      description: initialData?.description || "",
-      duration: initialData?.duration?.toString() || "",
-      level: initialData?.level || "",
-      image_url: initialData?.image_url || "",
-      video_url: initialData?.video_url || "",
-      calories: initialData?.calories?.toString() || "",
-      isFree: initialData?.isFree || isFree
+      title: workout?.title || "",
+      description: workout?.description || "",
+      duration: workout?.duration?.toString() || "",
+      level: workout?.level || "",
+      image_url: workout?.image_url || "",
+      video_url: workout?.video_url || "",
+      calories: workout?.calories?.toString() || "",
+      isFree: workout?.isFree || isFree
     }
   })
 
@@ -58,9 +60,9 @@ export function WorkoutForm({ initialData, isFree = false }: WorkoutFormProps) {
 
     try {
       const response = await fetch(
-        initialData ? `/api/workouts/${initialData.id}` : "/api/workouts",
+        workout ? `/api/workouts/${workout.id}` : "/api/workouts",
         {
-          method: initialData ? "PATCH" : "POST",
+          method: workout ? "PATCH" : "POST",
           headers: {
             "Content-Type": "application/json",
           },
@@ -78,7 +80,7 @@ export function WorkoutForm({ initialData, isFree = false }: WorkoutFormProps) {
       }
 
       toast.success(
-        initialData
+        workout
           ? "Тренировка успешно обновлена"
           : "Тренировка успешно создана"
       )
@@ -202,7 +204,7 @@ export function WorkoutForm({ initialData, isFree = false }: WorkoutFormProps) {
           )}
         />
         <Button disabled={loading} type="submit">
-          {loading ? "Сохранение..." : initialData ? "Обновить" : "Создать"}
+          {loading ? "Сохранение..." : workout ? "Обновить" : "Создать"}
         </Button>
       </form>
     </Form>
