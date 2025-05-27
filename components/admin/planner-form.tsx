@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,6 +16,12 @@ import {
 import { toast } from "sonner"
 import { PlannerEvent } from "@prisma/client"
 
+type User = {
+  id: string
+  name: string | null
+  email: string | null
+}
+
 interface PlannerFormProps {
   initialData?: PlannerEvent
 }
@@ -23,6 +29,23 @@ interface PlannerFormProps {
 export function PlannerForm({ initialData }: PlannerFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [users, setUsers] = useState<User[]>([])
+  const [selectedUserId, setSelectedUserId] = useState<string>(initialData?.userId || "")
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("/api/users")
+        if (!response.ok) throw new Error("Failed to fetch users")
+        const data = await response.json()
+        setUsers(data)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    fetchUsers()
+  }, [])
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -31,10 +54,10 @@ export function PlannerForm({ initialData }: PlannerFormProps) {
     const formData = new FormData(event.currentTarget)
     const data = {
       title: formData.get("title"),
-      description: formData.get("description") || null,
-      date: formData.get("date"),
-      type: formData.get("type"),
-      image_url: formData.get("image_url") || null,
+      description: formData.get("description"),
+      start: formData.get("start"),
+      end: formData.get("end"),
+      userId: selectedUserId
     }
 
     try {
@@ -88,40 +111,47 @@ export function PlannerForm({ initialData }: PlannerFormProps) {
           defaultValue={initialData?.description || ""}
         />
       </div>
+      <div className="space-y-2">
+        <Label htmlFor="userId">Пользователь</Label>
+        <Select 
+          name="userId" 
+          required 
+          value={selectedUserId}
+          onValueChange={setSelectedUserId}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Выберите пользователя" />
+          </SelectTrigger>
+          <SelectContent>
+            {users.map((user) => (
+              <SelectItem key={user.id} value={user.id}>
+                {user.name || user.email}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="date">Дата</Label>
+          <Label htmlFor="start">Дата начала</Label>
           <Input
-            id="date"
-            name="date"
-            type="date"
+            id="start"
+            name="start"
+            type="datetime-local"
             required
-            defaultValue={initialData?.date ? new Date(initialData.date).toISOString().split('T')[0] : ""}
+            defaultValue={initialData?.start ? new Date(initialData.start).toISOString().slice(0, 16) : ""}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="type">Тип</Label>
-          <Select name="type" required defaultValue={initialData?.type}>
-            <SelectTrigger>
-              <SelectValue placeholder="Выберите тип" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="workout">Тренировка</SelectItem>
-              <SelectItem value="nutrition">Питание</SelectItem>
-              <SelectItem value="other">Другое</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label htmlFor="end">Дата окончания</Label>
+          <Input
+            id="end"
+            name="end"
+            type="datetime-local"
+            required
+            defaultValue={initialData?.end ? new Date(initialData.end).toISOString().slice(0, 16) : ""}
+          />
         </div>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="image_url">URL изображения</Label>
-        <Input
-          id="image_url"
-          name="image_url"
-          type="url"
-          placeholder="Введите URL изображения"
-          defaultValue={initialData?.image_url || ""}
-        />
       </div>
       <div className="flex gap-4">
         <Button type="submit" disabled={loading}>

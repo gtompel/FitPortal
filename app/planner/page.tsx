@@ -12,11 +12,14 @@ export default async function PlannerPage() {
   }
 
   const events = await db.plannerEvent.findMany({
-    where: {
-      userId: session.user.id
-    },
+    where: session.user.role === "ADMIN" 
+      ? {} // Для админа показываем все события
+      : { userId: session.user.id }, // Для обычных пользователей только их события
     orderBy: {
       start: "asc"
+    },
+    include: {
+      user: true // Включаем информацию о пользователе
     }
   })
 
@@ -42,7 +45,11 @@ export default async function PlannerPage() {
               <h3 className="font-semibold">{event.title}</h3>
               <p className="text-sm text-gray-600">{event.description}</p>
               <div className="text-sm text-gray-500 mt-2">
-                {new Date(event.start).toLocaleString()} - {new Date(event.end).toLocaleString()}
+                <p>Начало: {new Date(event.start).toLocaleString()}</p>
+                <p>Конец: {new Date(event.end).toLocaleString()}</p>
+                {session.user.role === "ADMIN" && (
+                  <p>Пользователь: {event.user.name || event.user.email || 'Аноним'}</p>
+                )}
               </div>
             </div>
           ))}

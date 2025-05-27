@@ -5,11 +5,41 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
+type User = {
+  id: string
+  name: string | null
+  email: string | null
+}
 
 export default function NewPlannerPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [users, setUsers] = useState<User[]>([])
+  const [selectedUserId, setSelectedUserId] = useState<string>("")
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("/api/users")
+        if (!response.ok) throw new Error("Failed to fetch users")
+        const data = await response.json()
+        setUsers(data)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    fetchUsers()
+  }, [])
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -20,7 +50,8 @@ export default function NewPlannerPage() {
       title: formData.get("title"),
       description: formData.get("description"),
       start: formData.get("start"),
-      end: formData.get("end")
+      end: formData.get("end"),
+      userId: selectedUserId
     }
 
     try {
@@ -56,6 +87,26 @@ export default function NewPlannerPage() {
         <div className="space-y-2">
           <Label htmlFor="description">Описание</Label>
           <Textarea id="description" name="description" required />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="userId">Пользователь</Label>
+          <Select 
+            name="userId" 
+            required 
+            value={selectedUserId}
+            onValueChange={setSelectedUserId}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Выберите пользователя" />
+            </SelectTrigger>
+            <SelectContent>
+              {users.map((user) => (
+                <SelectItem key={user.id} value={user.id}>
+                  {user.name || user.email}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="start">Дата начала</Label>

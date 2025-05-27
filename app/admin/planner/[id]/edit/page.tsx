@@ -3,16 +3,14 @@ import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { db } from "@/lib/db"
 import { PlannerForm } from "@/components/admin/planner-form"
-import { use } from "react"
 
 interface EditPlannerPageProps {
-  params: Promise<{
+  params: {
     id: string
-  }>
+  }
 }
 
 export default async function EditPlannerPage({ params }: EditPlannerPageProps) {
-  const { id } = use(params)
   const session = await getServerSession(authOptions)
 
   if (!session?.user || session.user.role !== "ADMIN") {
@@ -21,7 +19,10 @@ export default async function EditPlannerPage({ params }: EditPlannerPageProps) 
 
   const event = await db.plannerEvent.findUnique({
     where: {
-      id
+      id: params.id
+    },
+    include: {
+      user: true
     }
   })
 

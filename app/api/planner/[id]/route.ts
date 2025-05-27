@@ -18,9 +18,9 @@ export async function PATCH(req: Request, { params }: PlannerRouteProps) {
     }
 
     const body = await req.json()
-    const { title, description, start, end } = body
+    const { title, description, start, end, userId } = body
 
-    if (!title || !start || !end) {
+    if (!title || !start || !end || !userId) {
       return new NextResponse("Missing required fields", { status: 400 })
     }
 
@@ -32,7 +32,8 @@ export async function PATCH(req: Request, { params }: PlannerRouteProps) {
         title,
         description,
         start: new Date(start),
-        end: new Date(end)
+        end: new Date(end),
+        userId
       }
     })
 
