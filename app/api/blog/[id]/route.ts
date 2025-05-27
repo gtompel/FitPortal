@@ -11,6 +11,33 @@ const postSchema = z.object({
   isFree: z.boolean()
 })
 
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user) {
+      return new NextResponse("Unauthorized", { status: 401 })
+    }
+
+    const post = await prisma.post.findUnique({
+      where: {
+        id: params.id
+      }
+    })
+
+    if (!post) {
+      return new NextResponse("Not found", { status: 404 })
+    }
+
+    return NextResponse.json(post)
+  } catch (error) {
+    return new NextResponse("Internal error", { status: 500 })
+  }
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: { id: string } }
@@ -27,8 +54,7 @@ export async function PATCH(
 
     const post = await prisma.post.update({
       where: {
-        id: params.id,
-        userId: session.user.id
+        id: params.id
       },
       data: {
         title: body.title,
@@ -48,31 +74,10 @@ export async function PATCH(
   }
 }
 
-export async function GET(
+export async function DELETE(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const post = await prisma.post.findUnique({
-      where: {
-        id: params.id
-      },
-      include: {
-        user: true
-      }
-    })
-
-    if (!post) {
-      return new NextResponse("Not found", { status: 404 })
-    }
-
-    return NextResponse.json(post)
-  } catch (error) {
-    return new NextResponse("Internal error", { status: 500 })
-  }
-}
-
-export async function DELETE(req: Request, { params }: BlogRouteProps) {
   try {
     const session = await getServerSession(authOptions)
 

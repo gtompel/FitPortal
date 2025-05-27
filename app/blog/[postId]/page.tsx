@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { redirect } from "next/navigation"
+import { redirect, notFound } from "next/navigation"
 import { db } from "@/lib/db"
 import { format } from "date-fns"
 import { ru } from "date-fns/locale"
@@ -9,9 +9,9 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
 interface BlogPageProps {
-  params: {
+  params: Promise<{
     postId: string
-  }
+  }>
 }
 
 export default async function BlogPage({ params }: BlogPageProps) {
@@ -21,9 +21,11 @@ export default async function BlogPage({ params }: BlogPageProps) {
     redirect("/login")
   }
 
+  const { postId } = await params
+
   const post = await db.post.findUnique({
     where: {
-      id: params.postId,
+      id: postId,
     },
     include: {
       user: {
@@ -35,7 +37,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
   })
 
   if (!post) {
-    redirect("/blog")
+    notFound()
   }
 
   return (

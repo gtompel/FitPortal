@@ -17,63 +17,61 @@ import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Switch } from "@/components/ui/switch"
-import { useEffect } from "react"
-import { use } from "react"
 
 const formSchema = z.object({
   title: z.string().min(1, "Название обязательно"),
-  content: z.string().min(1, "Содержание обязательно"),
+  description: z.string().min(1, "Описание обязательно"),
+  duration: z.string().min(1, "Длительность обязательна"),
+  level: z.string().min(1, "Уровень обязателен"),
   image_url: z.string().optional(),
   isFree: z.boolean()
 })
 
-export default function EditBlogPostPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+type Plan = {
+  id: string
+  userId: string
+  title: string
+  description: string
+  duration: number
+  level: string
+  image_url: string | null
+  isFree: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+export default function EditNutritionForm({ plan }: { plan: Plan }) {
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      content: "",
-      image_url: "",
-      isFree: false
+      title: plan.title,
+      description: plan.description,
+      duration: plan.duration.toString(),
+      level: plan.level,
+      image_url: plan.image_url || "",
+      isFree: plan.isFree
     },
   })
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        const response = await fetch(`/api/blog/${id}`)
-        if (!response.ok) throw new Error("Failed to fetch post")
-        const post = await response.json()
-        form.reset({
-          title: post.title,
-          content: post.content,
-          image_url: post.image_url || "",
-          isFree: post.isFree
-        })
-      } catch (error) {
-        toast.error("Ошибка при загрузке статьи")
-      }
-    }
-    fetchPost()
-  }, [id, form])
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const response = await fetch(`/api/blog/${id}`, {
+      const response = await fetch(`/api/nutrition/${plan.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          duration: parseInt(values.duration)
+        }),
       })
 
       if (!response.ok) {
-        throw new Error("Failed to update post")
+        throw new Error("Failed to update plan")
       }
 
-      toast.success("Статья обновлена")
+      toast.success("План обновлен")
       router.push("/admin/free")
       router.refresh()
     } catch (error) {
@@ -83,7 +81,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="max-w-2xl mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8">Редактировать статью</h1>
+      <h1 className="text-3xl font-bold mb-8">Редактировать план питания</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
@@ -93,7 +91,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
               <FormItem>
                 <FormLabel>Название</FormLabel>
                 <FormControl>
-                  <Input placeholder="Введите название статьи" {...field} />
+                  <Input placeholder="Введите название плана" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -101,16 +99,42 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
           />
           <FormField
             control={form.control}
-            name="content"
+            name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Содержание</FormLabel>
+                <FormLabel>Описание</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Введите содержание статьи"
+                    placeholder="Введите описание плана"
                     className="min-h-[200px]"
                     {...field}
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="duration"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Длительность (дней)</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Введите длительность" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="level"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Уровень</FormLabel>
+                <FormControl>
+                  <Input placeholder="Введите уровень" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

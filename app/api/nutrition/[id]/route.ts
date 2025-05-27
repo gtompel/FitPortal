@@ -1,74 +1,101 @@
+import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { db } from "@/lib/db"
-import { NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
+import { z } from "zod"
 
-interface NutritionRouteProps {
-  params: {
-    id: string
-  }
-}
+const planSchema = z.object({
+  title: z.string().min(1, "Название обязательно"),
+  description: z.string().min(1, "Описание обязательно"),
+  duration: z.number().min(1, "Длительность обязательна"),
+  level: z.string().min(1, "Уровень обязателен"),
+  image_url: z.string().nullable(),
+  isFree: z.boolean()
+})
 
-export async function PATCH(req: Request, { params }: NutritionRouteProps) {
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user || session.user.role !== "ADMIN") {
+    if (!session?.user) {
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
-    const body = await req.json()
-    const { title, description, duration, level, image_url } = body
-
-    if (!title || !description || !duration || !level) {
-      return new NextResponse("Missing required fields", { status: 400 })
-    }
-
-    const plan = await db.plan.update({
-      where: {
-        id: params.id
-      },
-      data: {
-        title,
-        description,
-        duration: parseInt(duration),
-        level,
-        image_url
-      }
-    })
-
-    return NextResponse.json(plan)
-  } catch (error) {
-    console.error("[NUTRITION_PATCH]", error)
-    return new NextResponse("Internal error", { status: 500 })
-  }
-}
-
-export async function DELETE(req: Request, { params }: NutritionRouteProps) {
-  try {
-    const session = await getServerSession(authOptions)
-
-    if (!session?.user || session.user.role !== "ADMIN") {
-      return new NextResponse("Unauthorized", { status: 401 })
-    }
-
-    const plan = await db.plan.findUnique({
+    const plan = await prisma.plan.findUnique({
       where: {
         id: params.id
       }
     })
 
     if (!plan) {
-      return new NextResponse("Plan not found", { status: 404 })
+      return new NextResponse("Not found", { status: 404 })
     }
 
-    await db.plan.delete({
+    return NextResponse.json(plan)
+  } catch (error) {
+    return new NextResponse("Internal error", { status: 500 })
+  }
+}
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user) {
+      return new NextResponse("Unauthorized", { status: 401 })
+    }
+
+    const json = await req.json()
+    const body = planSchema.parse(json)
+
+    const plan = await prisma.plan.update({
+      where: {
+        id: params.id
+      },
+      data: {
+        title: body.title,
+        description: body.description,
+        duration: body.duration,
+        level: body.level,
+        image_url: body.image_url,
+        isFree: body.isFree
+      }
+    })
+
+    return NextResponse.json(plan)
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return new NextResponse(JSON.stringify(error.issues), { status: 422 })
+    }
+
+    return new NextResponse("Internal error", { status: 500 })
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return new NextResponse("Unauthorized", { status: 401 })
+    }
+
+    const plan = await prisma.plan.delete({
       where: {
         id: params.id
       }
     })
 
-    return new NextResponse(null, { status: 204 })
+    return NextResponse.json(plan)
   } catch (error) {
     console.error("[NUTRITION_DELETE]", error)
     return new NextResponse("Internal error", { status: 500 })

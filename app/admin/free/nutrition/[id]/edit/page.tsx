@@ -18,7 +18,7 @@ export default async function EditNutritionPage({ params }: { params: { id: stri
   })
 
   if (!plan) {
-    redirect("/admin/nutrition")
+    redirect("/admin/free")
   }
 
   return <EditNutritionForm plan={plan} />
