@@ -1,20 +1,54 @@
+import { db } from "@/lib/db"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import Image from "next/image"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const posts = await db.post.findMany({
+    include: {
+      user: true
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  })
+
+  if (!posts.length) {
+    return (
+      <div className="container mx-auto py-8">
+        <h1 className="text-3xl font-bold mb-8">Блог</h1>
+        <p>Посты пока не добавлены</p>
+      </div>
+    )
+  }
+
   return (
-    <div className="container px-4 py-12 md:px-6 md:py-24">
-      <div className="flex flex-col space-y-4 mb-8">
-        <h1 className="text-3xl font-bold tracking-tighter md:text-4xl text-green-700 dark:text-green-300">Блог</h1>
-        <p className="text-gray-600 dark:text-gray-300 max-w-3xl">
-          Страница блога находится в разработке. Скоро здесь появятся полезные статьи о фитнесе, питании и здоровом
-          образе жизни.
-        </p>
-        <div className="pt-4">
-          <Button asChild className="bg-green-600 hover:bg-green-700">
-            <Link href="/">Вернуться на главную</Link>
-          </Button>
-        </div>
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-8">Блог</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {posts.map((post) => (
+          <Link href={`/blog/${post.id}`} key={post.id}>
+            <Card className="h-full hover:shadow-lg transition-shadow">
+              {post.image_url && (
+                <div className="relative aspect-video">
+                  <Image
+                    src={post.image_url}
+                    alt={post.title}
+                    fill
+                    className="object-cover rounded-t-lg"
+                  />
+                </div>
+              )}
+              <CardContent className="p-4">
+                <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
+                <p className="text-gray-600 text-sm line-clamp-3">{post.content}</p>
+              </CardContent>
+              <CardFooter className="p-4 pt-0 text-sm text-gray-500">
+                {post.user?.name || 'Аноним'}
+              </CardFooter>
+            </Card>
+          </Link>
+        ))}
       </div>
     </div>
   )

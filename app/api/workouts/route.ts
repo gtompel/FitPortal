@@ -3,31 +3,21 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { NextResponse } from "next/server"
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user || session.user.role !== "ADMIN") {
+    if (!session?.user) {
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
-    const body = await req.json()
-    const { title, description, duration, level, categoryId, image_url, calories } = body
-
-    if (!title || !duration || !level || !categoryId) {
-      return new NextResponse("Missing required fields", { status: 400 })
-    }
+    const data = await request.json()
 
     const workout = await db.workout.create({
       data: {
-        title,
-        description,
-        duration,
-        level,
-        categoryId,
-        image_url,
-        calories
-      }
+        ...data,
+        userId: session.user.id,
+      },
     })
 
     return NextResponse.json(workout)
@@ -39,9 +29,20 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url)
+    const isFree = searchParams.get("isFree")
+
     const workouts = await db.workout.findMany({
+      where: {
+        isFree: isFree === "true" ? true : isFree === "false" ? false : undefined
+      },
       include: {
         category: true,
+        user: {
+          select: {
+            name: true
+          }
+        }
       },
       orderBy: {
         createdAt: "desc",

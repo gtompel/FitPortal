@@ -5,7 +5,7 @@ import { db } from "@/lib/db"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Plus } from "lucide-react"
+import { Plus, Pencil, Trash2 } from "lucide-react"
 import { format } from "date-fns"
 import { ru } from "date-fns/locale"
 
@@ -18,7 +18,10 @@ export default async function PlannerPage() {
 
   const events = await db.plannerEvent.findMany({
     orderBy: {
-      createdAt: "desc"
+      start: "desc"
+    },
+    include: {
+      user: true
     }
   })
 
@@ -42,12 +45,22 @@ export default async function PlannerPage() {
             <CardContent>
               <p className="text-sm text-muted-foreground">{event.description}</p>
               <div className="mt-2 text-sm text-muted-foreground">
-                <p>Начало: {format(event.start, "d MMMM yyyy", { locale: ru })}</p>
-                <p>Конец: {format(event.end, "d MMMM yyyy", { locale: ru })}</p>
+                <p>Начало: {format(event.start, "d MMMM yyyy HH:mm", { locale: ru })}</p>
+                <p>Конец: {format(event.end, "d MMMM yyyy HH:mm", { locale: ru })}</p>
+                <p>Пользователь: {event.user.name || 'Аноним'}</p>
               </div>
-              <div className="mt-4 flex justify-end">
-                <Button asChild variant="outline">
-                  <Link href={`/admin/planner/${event.id}`}>Редактировать</Link>
+              <div className="mt-4 flex justify-end gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/admin/planner/${event.id}/edit`}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Редактировать
+                  </Link>
+                </Button>
+                <Button asChild variant="destructive" size="sm">
+                  <Link href={`/admin/planner/${event.id}/delete`}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Удалить
+                  </Link>
                 </Button>
               </div>
             </CardContent>

@@ -4,14 +4,16 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { use } from "react"
 
 interface DeleteWorkoutPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function DeleteWorkoutPage({ params }: DeleteWorkoutPageProps) {
+  const { id } = use(params)
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -19,7 +21,7 @@ export default function DeleteWorkoutPage({ params }: DeleteWorkoutPageProps) {
     setLoading(true)
 
     try {
-      const response = await fetch(`/api/workouts/${params.id}`, {
+      const response = await fetch(`/api/workouts/${id}`, {
         method: "DELETE",
       })
 

@@ -4,14 +4,16 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { use } from "react"
 
 interface DeletePlannerPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function DeletePlannerPage({ params }: DeletePlannerPageProps) {
+  const { id } = use(params)
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -19,7 +21,7 @@ export default function DeletePlannerPage({ params }: DeletePlannerPageProps) {
     setLoading(true)
 
     try {
-      const response = await fetch(`/api/planner/${params.id}`, {
+      const response = await fetch(`/api/planner/${id}`, {
         method: "DELETE",
       })
 

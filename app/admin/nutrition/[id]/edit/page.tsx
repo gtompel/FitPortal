@@ -3,29 +3,30 @@ import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { db } from "@/lib/db"
 import { NutritionForm } from "@/components/admin/nutrition-form"
-import { notFound } from "next/navigation"
+import { use } from "react"
 
 interface EditNutritionPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function EditNutritionPage({ params }: EditNutritionPageProps) {
+  const { id } = use(params)
   const session = await getServerSession(authOptions)
 
   if (!session?.user || session.user.role !== "ADMIN") {
     redirect("/dashboard")
   }
 
-  const plan = await db.nutritionPlan.findUnique({
+  const plan = await db.plan.findUnique({
     where: {
-      id: params.id
+      id
     }
   })
 
   if (!plan) {
-    notFound()
+    redirect("/admin/nutrition")
   }
 
   return (

@@ -16,17 +16,29 @@ async function main() {
     db.category.upsert({
       where: { slug: 'cardio' },
       update: {},
-      create: { name: 'Кардио', slug: 'cardio', description: 'Кардио тренировки' },
+      create: { 
+        name: 'Кардио', 
+        slug: 'cardio', 
+        description: 'Кардио тренировки для улучшения выносливости и сжигания калорий' 
+      },
     }),
     db.category.upsert({
       where: { slug: 'strength' },
       update: {},
-      create: { name: 'Силовые', slug: 'strength', description: 'Силовые тренировки' },
+      create: { 
+        name: 'Силовые', 
+        slug: 'strength', 
+        description: 'Силовые тренировки для набора мышечной массы и силы' 
+      },
     }),
     db.category.upsert({
       where: { slug: 'flexibility' },
       update: {},
-      create: { name: 'Гибкость', slug: 'flexibility', description: 'Тренировки на гибкость' },
+      create: { 
+        name: 'Гибкость', 
+        slug: 'flexibility', 
+        description: 'Тренировки на гибкость и растяжку для улучшения подвижности' 
+      },
     }),
   ]);
 
@@ -38,7 +50,7 @@ async function main() {
       duration: 30,
       level: 'beginner',
       calories: 250,
-      image_url: '/workouts/cardio1.jpg',
+      image_url: '/workouts/cardio1.svg',
       video_url: 'https://youtube.com/cardio1',
       categoryId: cardio.id,
       userId: admin.id,
@@ -51,7 +63,7 @@ async function main() {
       duration: 45,
       level: 'intermediate',
       calories: 400,
-      image_url: '/workouts/strength1.jpg',
+      image_url: '/workouts/strength1.svg',
       video_url: 'https://youtube.com/strength1',
       categoryId: strength.id,
       userId: admin.id,
@@ -64,7 +76,7 @@ async function main() {
       duration: 20,
       level: 'beginner',
       calories: 100,
-      image_url: '/workouts/flex1.jpg',
+      image_url: '/workouts/flex1.svg',
       video_url: 'https://youtube.com/flex1',
       categoryId: flexibility.id,
       userId: admin.id,
@@ -76,7 +88,7 @@ async function main() {
     data: {
       title: 'Как начать тренироваться дома',
       content: 'Советы для новичков по домашним тренировкам.',
-      image_url: '/blog/home.jpg',
+      image_url: '/blog/home.svg',
       userId: admin.id,
     },
   });
@@ -84,7 +96,7 @@ async function main() {
     data: {
       title: 'Питание для набора массы',
       content: 'Что есть, чтобы набирать мышечную массу.',
-      image_url: '/blog/mass.jpg',
+      image_url: '/blog/mass.svg',
       userId: admin.id,
     },
   });
@@ -96,7 +108,7 @@ async function main() {
       description: 'Сбалансированный рацион для снижения веса.',
       duration: 14,
       level: 'beginner',
-      image_url: '/plans/lose.jpg',
+      image_url: '/plans/lose.svg',
       userId: admin.id,
     },
   });
@@ -106,7 +118,7 @@ async function main() {
       description: 'Питание для роста мышц.',
       duration: 30,
       level: 'intermediate',
-      image_url: '/plans/gain.jpg',
+      image_url: '/plans/gain.svg',
       userId: admin.id,
     },
   });

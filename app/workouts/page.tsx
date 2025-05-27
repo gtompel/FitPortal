@@ -17,19 +17,29 @@ const levelMap: Record<string, string> = {
 export default async function WorkoutsPage() {
   const workouts = await db.workout.findMany({
     include: {
-      category: true
+      category: true,
+      user: true
     },
     orderBy: {
       createdAt: "desc"
     }
   })
 
+  if (!workouts.length) {
+    return (
+      <div className="container mx-auto py-8">
+        <h1 className="text-3xl font-bold mb-8">Тренировки</h1>
+        <p>Тренировки пока не добавлены</p>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-8">Тренировки</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {workouts.map((workout) => (
-          <Link href={`/workouts/${workout.category.slug}`} key={workout.id}>
+          <Link href={`/workouts/${workout.category?.slug || 'uncategorized'}`} key={workout.id}>
             <div className="group relative overflow-hidden rounded-lg border bg-white shadow-sm transition-all hover:shadow-md">
               {workout.image_url && (
                 <div className="relative aspect-video">
@@ -44,7 +54,7 @@ export default async function WorkoutsPage() {
               <div className="p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Badge className="bg-green-600 hover:bg-green-700">
-                    {workout.category.name}
+                    {workout.category?.name || 'Без категории'}
                   </Badge>
                   <Badge variant="outline">{levelMap[workout.level] || workout.level}</Badge>
                 </div>

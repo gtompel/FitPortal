@@ -18,23 +18,21 @@ export async function PATCH(req: Request, { params }: NutritionRouteProps) {
     }
 
     const body = await req.json()
-    const { title, description, calories, protein, fat, carbs, image_url } = body
+    const { title, description, duration, level, image_url } = body
 
-    if (!title || !calories || !protein || !fat || !carbs) {
+    if (!title || !description || !duration || !level) {
       return new NextResponse("Missing required fields", { status: 400 })
     }
 
-    const plan = await db.nutritionPlan.update({
+    const plan = await db.plan.update({
       where: {
         id: params.id
       },
       data: {
         title,
         description,
-        calories,
-        protein,
-        fat,
-        carbs,
+        duration: parseInt(duration),
+        level,
         image_url
       }
     })
@@ -54,13 +52,23 @@ export async function DELETE(req: Request, { params }: NutritionRouteProps) {
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
-    const plan = await db.nutritionPlan.delete({
+    const plan = await db.plan.findUnique({
       where: {
         id: params.id
       }
     })
 
-    return NextResponse.json(plan)
+    if (!plan) {
+      return new NextResponse("Plan not found", { status: 404 })
+    }
+
+    await db.plan.delete({
+      where: {
+        id: params.id
+      }
+    })
+
+    return new NextResponse(null, { status: 204 })
   } catch (error) {
     console.error("[NUTRITION_DELETE]", error)
     return new NextResponse("Internal error", { status: 500 })

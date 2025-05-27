@@ -20,6 +20,12 @@ import { useMobile } from "@/hooks/use-mobile"
 import { Menu } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 
+interface Category {
+  id: string
+  name: string
+  slug: string
+}
+
 interface ClientHeaderProps {
   session: any
 }
@@ -28,6 +34,7 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
   const isMobile = useMobile()
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
+  const [categories, setCategories] = useState<Category[]>([])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,6 +43,17 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
 
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  useEffect(() => {
+    async function fetchCategories() {
+      const response = await fetch("/api/categories")
+      if (response.ok) {
+        const data = await response.json()
+        setCategories(data)
+      }
+    }
+    fetchCategories()
   }, [])
 
   return (
@@ -172,45 +190,21 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
                         </a>
                       </NavigationMenuLink>
                     </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <a
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          href="/workouts/cardio"
-                        >
-                          <div className="text-sm font-medium leading-none">Кардио</div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            Кардиотренировки для похудения и выносливости
-                          </p>
-                        </a>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <a
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          href="/workouts/strength"
-                        >
-                          <div className="text-sm font-medium leading-none">Силовые</div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            Тренировки для набора мышечной массы
-                          </p>
-                        </a>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <a
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          href="/workouts/flexibility"
-                        >
-                          <div className="text-sm font-medium leading-none">Растяжка</div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            Упражнения для развития гибкости
-                          </p>
-                        </a>
-                      </NavigationMenuLink>
-                    </li>
+                    {categories.map((category) => (
+                      <li key={category.id}>
+                        <NavigationMenuLink asChild>
+                          <a
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            href={`/workouts/${category.slug}`}
+                          >
+                            <div className="text-sm font-medium leading-none">{category.name}</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Тренировки в категории {category.name}
+                            </p>
+                          </a>
+                        </NavigationMenuLink>
+                      </li>
+                    ))}
                   </ul>
                 </NavigationMenuContent>
               </NavigationMenuItem>

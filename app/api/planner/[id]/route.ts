@@ -18,9 +18,9 @@ export async function PATCH(req: Request, { params }: PlannerRouteProps) {
     }
 
     const body = await req.json()
-    const { title, description, date, type, image_url } = body
+    const { title, description, start, end } = body
 
-    if (!title || !date || !type) {
+    if (!title || !start || !end) {
       return new NextResponse("Missing required fields", { status: 400 })
     }
 
@@ -31,9 +31,8 @@ export async function PATCH(req: Request, { params }: PlannerRouteProps) {
       data: {
         title,
         description,
-        date: new Date(date),
-        type,
-        image_url
+        start: new Date(start),
+        end: new Date(end)
       }
     })
 
@@ -52,13 +51,23 @@ export async function DELETE(req: Request, { params }: PlannerRouteProps) {
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
-    const event = await db.plannerEvent.delete({
+    const event = await db.plannerEvent.findUnique({
       where: {
         id: params.id
       }
     })
 
-    return NextResponse.json(event)
+    if (!event) {
+      return new NextResponse("Event not found", { status: 404 })
+    }
+
+    await db.plannerEvent.delete({
+      where: {
+        id: params.id
+      }
+    })
+
+    return new NextResponse(null, { status: 204 })
   } catch (error) {
     console.error("[PLANNER_DELETE]", error)
     return new NextResponse("Internal error", { status: 500 })

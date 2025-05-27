@@ -5,7 +5,7 @@ import { db } from "@/lib/db"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Plus } from "lucide-react"
+import { Plus, Pencil, Trash2 } from "lucide-react"
 
 export default async function NutritionPage() {
   const session = await getServerSession(authOptions)
@@ -17,6 +17,9 @@ export default async function NutritionPage() {
   const plans = await db.plan.findMany({
     orderBy: {
       createdAt: "desc"
+    },
+    include: {
+      user: true
     }
   })
 
@@ -39,9 +42,23 @@ export default async function NutritionPage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">{plan.description}</p>
-              <div className="mt-4 flex justify-end">
-                <Button asChild variant="outline">
-                  <Link href={`/admin/nutrition/${plan.id}`}>Редактировать</Link>
+              <div className="mt-2 text-sm text-muted-foreground">
+                <p>Длительность: {plan.duration} дней</p>
+                <p>Уровень: {plan.level}</p>
+                <p>Автор: {plan.user.name || 'Аноним'}</p>
+              </div>
+              <div className="mt-4 flex justify-end gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/admin/nutrition/${plan.id}/edit`}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Редактировать
+                  </Link>
+                </Button>
+                <Button asChild variant="destructive" size="sm">
+                  <Link href={`/admin/nutrition/${plan.id}/delete`}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Удалить
+                  </Link>
                 </Button>
               </div>
             </CardContent>

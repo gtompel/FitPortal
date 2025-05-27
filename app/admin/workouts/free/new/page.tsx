@@ -1,40 +1,16 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { toast } from "sonner"
-
-interface Category {
-  id: string
-  name: string
-}
 
 export default function NewWorkoutPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [categories, setCategories] = useState<Category[]>([])
-
-  useEffect(() => {
-    async function fetchCategories() {
-      const response = await fetch("/api/categories")
-      if (response.ok) {
-        const data = await response.json()
-        setCategories(data)
-      }
-    }
-    fetchCategories()
-  }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -47,10 +23,7 @@ export default function NewWorkoutPage() {
       duration: parseInt(formData.get("duration") as string),
       level: formData.get("level"),
       calories: parseInt(formData.get("calories") as string),
-      image_url: formData.get("image_url"),
-      video_url: formData.get("video_url"),
-      categoryId: formData.get("categoryId"),
-      isFree: false,
+      isFree: true,
     }
 
     try {
@@ -67,7 +40,7 @@ export default function NewWorkoutPage() {
       }
 
       toast.success("Тренировка успешно создана")
-      router.push("/admin/workouts")
+      router.push("/admin/workouts/free")
     } catch (error) {
       toast.error("Ошибка при создании тренировки")
     } finally {
@@ -80,7 +53,7 @@ export default function NewWorkoutPage() {
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Новая тренировка</h2>
         <p className="text-muted-foreground">
-          Добавьте новую тренировку
+          Добавьте новую бесплатную тренировку
         </p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -101,21 +74,6 @@ export default function NewWorkoutPage() {
             required
             placeholder="Введите описание тренировки"
           />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="categoryId">Категория</Label>
-          <Select name="categoryId" required>
-            <SelectTrigger>
-              <SelectValue placeholder="Выберите категорию" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -148,24 +106,6 @@ export default function NewWorkoutPage() {
             required
             min="1"
             placeholder="300"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="image_url">URL изображения</Label>
-          <Input
-            id="image_url"
-            name="image_url"
-            type="url"
-            placeholder="https://example.com/image.jpg"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="video_url">URL видео</Label>
-          <Input
-            id="video_url"
-            name="video_url"
-            type="url"
-            placeholder="https://example.com/video.mp4"
           />
         </div>
         <div className="flex justify-end space-x-4">

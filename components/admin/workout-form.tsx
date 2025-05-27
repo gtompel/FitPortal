@@ -2,43 +2,59 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
 import { Button } from "@/components/ui/button"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { toast } from "sonner"
-import { Category, Workout } from "@prisma/client"
+import { Workout } from "@prisma/client"
+
+const formSchema = z.object({
+  title: z.string().min(1, "Название обязательно"),
+  description: z.string().min(1, "Описание обязательно"),
+  duration: z.string().min(1, "Длительность обязательна"),
+  level: z.string().min(1, "Уровень обязателен"),
+  image_url: z.string().optional(),
+  video_url: z.string().optional(),
+  calories: z.string().min(1, "Калории обязательны"),
+  isFree: z.boolean().default(false)
+})
 
 interface WorkoutFormProps {
-  categories: Category[]
   initialData?: Workout
+  isFree?: boolean
 }
 
-export function WorkoutForm({ categories, initialData }: WorkoutFormProps) {
+export function WorkoutForm({ initialData, isFree = false }: WorkoutFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setLoading(true)
-
-    const formData = new FormData(event.currentTarget)
-    const data = {
-      title: formData.get("title"),
-      description: formData.get("description") || null,
-      duration: parseInt(formData.get("duration") as string),
-      level: formData.get("level"),
-      categoryId: formData.get("categoryId"),
-      image_url: formData.get("image_url") || null,
-      calories: formData.get("calories") ? parseInt(formData.get("calories") as string) : null,
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: initialData?.title || "",
+      description: initialData?.description || "",
+      duration: initialData?.duration?.toString() || "",
+      level: initialData?.level || "",
+      image_url: initialData?.image_url || "",
+      video_url: initialData?.video_url || "",
+      calories: initialData?.calories?.toString() || "",
+      isFree: initialData?.isFree || isFree
     }
+  })
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setLoading(true)
 
     try {
       const response = await fetch(
@@ -48,7 +64,12 @@ export function WorkoutForm({ categories, initialData }: WorkoutFormProps) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify({
+            ...values,
+            duration: parseInt(values.duration),
+            calories: parseInt(values.calories),
+            isFree
+          }),
         }
       )
 
@@ -61,7 +82,7 @@ export function WorkoutForm({ categories, initialData }: WorkoutFormProps) {
           ? "Тренировка успешно обновлена"
           : "Тренировка успешно создана"
       )
-      router.push("/admin/workouts")
+      router.push(isFree ? "/admin/free-workouts" : "/admin/workouts")
       router.refresh()
     } catch (error) {
       toast.error("Произошла ошибка при сохранении тренировки")
@@ -71,106 +92,119 @@ export function WorkoutForm({ categories, initialData }: WorkoutFormProps) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6 max-w-2xl">
-      <div className="space-y-2">
-        <Label htmlFor="title">Название</Label>
-        <Input
-          id="title"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
           name="title"
-          required
-          placeholder="Введите название тренировки"
-          defaultValue={initialData?.title}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Название</FormLabel>
+              <FormControl>
+                <Input disabled={loading} placeholder="Введите название" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="description">Описание</Label>
-        <Textarea
-          id="description"
+        <FormField
+          control={form.control}
           name="description"
-          placeholder="Введите описание тренировки"
-          defaultValue={initialData?.description || ""}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Описание</FormLabel>
+              <FormControl>
+                <Textarea
+                  disabled={loading}
+                  placeholder="Введите описание"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="duration">Длительность (минуты)</Label>
-          <Input
-            id="duration"
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
             name="duration"
-            type="number"
-            required
-            min="1"
-            defaultValue={initialData?.duration}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Длительность (минут)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    disabled={loading}
+                    placeholder="Введите длительность"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="calories"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Калории</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    disabled={loading}
+                    placeholder="Введите калории"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="level">Уровень</Label>
-          <Select name="level" required defaultValue={initialData?.level}>
-            <SelectTrigger>
-              <SelectValue placeholder="Выберите уровень" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="beginner">Начинающий</SelectItem>
-              <SelectItem value="intermediate">Средний</SelectItem>
-              <SelectItem value="advanced">Продвинутый</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="categoryId">Категория</Label>
-        <Select name="categoryId" required defaultValue={initialData?.categoryId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Выберите категорию" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="image_url">URL изображения</Label>
-        <Input
-          id="image_url"
+        <FormField
+          control={form.control}
+          name="level"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Уровень</FormLabel>
+              <FormControl>
+                <Input disabled={loading} placeholder="Введите уровень" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="image_url"
-          type="url"
-          placeholder="Введите URL изображения"
-          defaultValue={initialData?.image_url || ""}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>URL изображения</FormLabel>
+              <FormControl>
+                <Input disabled={loading} placeholder="Введите URL изображения" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="calories">Калории</Label>
-        <Input
-          id="calories"
-          name="calories"
-          type="number"
-          min="0"
-          placeholder="Введите количество калорий"
-          defaultValue={initialData?.calories || ""}
+        <FormField
+          control={form.control}
+          name="video_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>URL видео</FormLabel>
+              <FormControl>
+                <Input disabled={loading} placeholder="Введите URL видео" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </div>
-      <div className="flex gap-4">
-        <Button type="submit" disabled={loading}>
-          {loading
-            ? initialData
-              ? "Сохранение..."
-              : "Создание..."
-            : initialData
-            ? "Сохранить"
-            : "Создать"}
+        <Button disabled={loading} type="submit">
+          {loading ? "Сохранение..." : initialData ? "Обновить" : "Создать"}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.back()}
-        >
-          Отмена
-        </Button>
-      </div>
-    </form>
+      </form>
+    </Form>
   )
 } 

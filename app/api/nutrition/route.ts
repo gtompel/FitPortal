@@ -34,4 +34,26 @@ export async function POST(req: Request) {
     console.error("[NUTRITION_POST]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
+}
+
+export async function GET() {
+  try {
+    const plans = await db.plan.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        user: {
+          select: {
+            name: true
+          }
+        }
+      }
+    })
+
+    return NextResponse.json(plans)
+  } catch (error) {
+    console.error("[NUTRITION_GET]", error)
+    return new NextResponse("Internal error", { status: 500 })
+  }
 } 
