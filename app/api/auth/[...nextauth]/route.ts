@@ -66,14 +66,15 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
-        token.role = user.role
+        // TypeScript fix: Add type assertion for user with 'role' property
+        token.role = (user as { role?: string }).role
       }
       return token
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id
-        session.user.role = token.role
+        session.user.id = token.id as string
+        session.user.role = token.role as string
       }
       return session
     }
@@ -83,4 +84,4 @@ export const authOptions: NextAuthOptions = {
 
 const handler = NextAuth(authOptions)
 
-export { handler as GET, handler as POST } 
+export { handler as GET, handler as POST }
