@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     const supabase = createServerClient()
     await supabase.auth.signOut()
   } catch (error) {
-    console.error("Error signing out:", error)
+    //    console.error("Error signing out:", error)
   }
 
   return NextResponse.redirect(`${requestUrl.origin}/`)

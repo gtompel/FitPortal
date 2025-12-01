@@ -22,7 +22,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(workout)
   } catch (error) {
-    console.error("[WORKOUTS_POST]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 }
@@ -51,7 +50,6 @@ export async function GET(req: Request) {
 
     return NextResponse.json(workouts)
   } catch (error) {
-    console.log("[WORKOUTS_GET]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 } 

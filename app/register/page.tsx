@@ -51,68 +51,58 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-        <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">
+    <div className="container flex min-h-screen w-full flex-col items-center justify-center px-2 sm:px-4">
+      <div className="mx-auto flex w-full flex-col justify-center gap-4 sm:w-[350px]">
+        <div className="flex flex-col gap-2 text-center">
+          <h1 className="font-semibold tracking-tight" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',lineHeight:'1.2'}}>
             Регистрация
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Создайте новый аккаунт
-          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">Создайте новый аккаунт</p>
         </div>
-
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="text-xs md:text-sm">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Автозаполнение не допускается при регистрации
-          </AlertDescription>
+          <AlertDescription>Автозаполнение не допускается при регистрации</AlertDescription>
         </Alert>
-
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Input
-              id="name"
-              name="name"
-              placeholder="Имя"
-              type="text"
-              autoCapitalize="none"
-              autoCorrect="off"
-              autoComplete="off"
-              disabled={isLoading}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Input
-              id="email"
-              name="email"
-              placeholder="Email"
-              type="email"
-              autoCapitalize="none"
-              autoComplete="off"
-              autoCorrect="off"
-              disabled={isLoading}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Input
-              id="password"
-              name="password"
-              placeholder="Пароль"
-              type="password"
-              autoComplete="off"
-              disabled={isLoading}
-              required
-            />
-          </div>
-          <Button className="w-full" type="submit" disabled={isLoading}>
+        <form onSubmit={onSubmit} className="gap-4 flex flex-col">
+          <Input
+            id="name"
+            name="name"
+            placeholder="Имя"
+            type="text"
+            autoCapitalize="none"
+            autoCorrect="off"
+            autoComplete="off"
+            disabled={isLoading}
+            required
+            className="w-full min-h-[44px] text-base"
+          />
+          <Input
+            id="email"
+            name="email"
+            placeholder="Email"
+            type="email"
+            autoCapitalize="none"
+            autoComplete="off"
+            autoCorrect="off"
+            disabled={isLoading}
+            required
+            className="w-full min-h-[44px] text-base"
+          />
+          <Input
+            id="password"
+            name="password"
+            placeholder="Пароль"
+            type="password"
+            autoComplete="off"
+            disabled={isLoading}
+            required
+            className="w-full min-h-[44px] text-base"
+          />
+          <Button className="w-full min-h-[44px] mt-2" type="submit" disabled={isLoading}>
             {isLoading ? "Регистрация..." : "Зарегистрироваться"}
           </Button>
         </form>
-
-        <p className="px-8 text-center text-sm text-muted-foreground">
+        <p className="px-2 text-center text-sm text-muted-foreground">
           <Link
             href="/login"
             className="hover:text-brand underline underline-offset-4"

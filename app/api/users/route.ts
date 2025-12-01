@@ -24,7 +24,6 @@ export async function GET() {
 
     return NextResponse.json(users)
   } catch (error) {
-    console.error("[USERS_GET]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 } 

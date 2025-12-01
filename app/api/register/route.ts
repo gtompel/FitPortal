@@ -46,7 +46,6 @@ export async function POST(req: Request) {
       }
     })
   } catch (error) {
-    console.error("[REGISTER_ERROR]", error)
     return NextResponse.json(
       { error: "Внутренняя ошибка сервера" },
       { status: 500 }

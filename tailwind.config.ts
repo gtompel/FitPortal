@@ -85,6 +85,15 @@ const config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      fontSize: {
+        base: 'clamp(1rem, 1rem + 0.5vw, 1.125rem)',
+        lg: 'clamp(1.125rem, 1.125rem + 0.75vw, 1.4rem)',
+        xl: 'clamp(1.25rem, 1.25rem + 1vw, 1.7rem)',
+      },
+      lineHeight: {
+        snug: '1.4',
+        relaxed: '1.6',
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

@@ -14,7 +14,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 import { useMobile } from "@/hooks/use-mobile"
 import { Menu } from "lucide-react"
@@ -58,21 +58,22 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
 
   return (
     <>
-      {isMobile ? (
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right">
-              <SheetHeader>
-                <SheetTitle>Меню</SheetTitle>
-              </SheetHeader>
-              <div className="flex flex-col gap-4 py-4">
+      <div className="flex items-center gap-2 md:hidden">
+        {/* мобильное меню — только на xs/sm */}
+        <ThemeToggle />
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right">
+            <SheetHeader>
+              <SheetTitle>Меню</SheetTitle>
+            </SheetHeader>
+            <SheetDescription className="sr-only">Навигация по разделам сайта</SheetDescription>
+            <div className="flex flex-col gap-4 py-4">
                 <Link
                   href="/"
                   className={cn(
@@ -150,24 +151,19 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
                   )}
                 </div>
               </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      ) : (
-        <div className="flex items-center gap-6">
-          <NavigationMenu>
+          </SheetContent>
+        </Sheet>
+      </div>
+      <div className="hidden md:flex items-center gap-6">
+        {/* десктоп-меню — только на md+ */}
+        <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <Link href="/" legacyBehavior passHref>
-                  <NavigationMenuLink
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      pathname === "/" ? "text-green-600 dark:text-green-400" : "",
-                    )}
-                  >
+                <NavigationMenuLink asChild>
+                  <Link href="/">
                     Главная
-                  </NavigationMenuLink>
-                </Link>
+                  </Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuTrigger
@@ -209,53 +205,33 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link href="/blog" legacyBehavior passHref>
-                  <NavigationMenuLink
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      pathname === "/blog" ? "text-green-600 dark:text-green-400" : "",
-                    )}
-                  >
+                <NavigationMenuLink asChild>
+                  <Link href="/blog">
                     Блог
-                  </NavigationMenuLink>
-                </Link>
+                  </Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link href="/nutrition" legacyBehavior passHref>
-                  <NavigationMenuLink
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      pathname === "/nutrition" ? "text-green-600 dark:text-green-400" : "",
-                    )}
-                  >
+                <NavigationMenuLink asChild>
+                  <Link href="/nutrition">
                     Питание
-                  </NavigationMenuLink>
-                </Link>
+                  </Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link href="/planner" legacyBehavior passHref>
-                  <NavigationMenuLink
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      pathname === "/planner" ? "text-green-600 dark:text-green-400" : "",
-                    )}
-                  >
+                <NavigationMenuLink asChild>
+                  <Link href="/planner">
                     Планировщик
-                  </NavigationMenuLink>
-                </Link>
+                  </Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
               {session?.user?.role === "ADMIN" && (
                 <NavigationMenuItem>
-                  <Link href="/admin" legacyBehavior passHref>
-                    <NavigationMenuLink
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        pathname.startsWith("/admin") ? "text-green-600 dark:text-green-400" : "",
-                      )}
-                    >
+                  <NavigationMenuLink asChild>
+                    <Link href="/admin">
                       Админ панель
-                    </NavigationMenuLink>
-                  </Link>
+                    </Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
               )}
             </NavigationMenuList>
@@ -286,8 +262,7 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
               </>
             )}
           </div>
-        </div>
-      )}
+      </div>
     </>
   )
 }

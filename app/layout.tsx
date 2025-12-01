@@ -32,9 +32,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <div className="relative flex min-h-screen flex-col">
+            <div className="relative flex min-h-screen flex-col px-2 sm:px-4 md:px-8" style={{paddingBottom: 'env(safe-area-inset-bottom)', paddingTop: 'env(safe-area-inset-top)'}}>
               <Header />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 text-base leading-snug">{children}</main>
               <Footer />
             </div>
             <Toaster />

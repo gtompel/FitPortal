@@ -37,7 +37,7 @@ export async function GET(req: Request, { params }: BlogRouteProps) {
 
     return NextResponse.json(post)
   } catch (error) {
-    console.error("[BLOG_GET]", error)
+    //    console.error("[BLOG_GET]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 }
@@ -70,7 +70,7 @@ export async function PATCH(req: Request, { params }: BlogRouteProps) {
 
     return NextResponse.json(post)
   } catch (error) {
-    console.error("[BLOG_PATCH]", error)
+    //    console.error("[BLOG_PATCH]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 }
@@ -101,7 +101,7 @@ export async function DELETE(req: Request, { params }: BlogRouteProps) {
 
     return new NextResponse(null, { status: 204 })
   } catch (error) {
-    console.error("[BLOG_DELETE]", error)
+    //    console.error("[BLOG_DELETE]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 } 

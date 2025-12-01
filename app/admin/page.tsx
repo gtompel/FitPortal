@@ -58,25 +58,23 @@ export default async function AdminPage() {
   ]
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Обзор</h1>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="px-2 sm:px-4 py-4">
+      <h1 className="font-bold mb-6" style={{fontSize:'clamp(1.3rem,4vw,2.2rem)'}}>Обзор</h1>
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
-            <Card key={stat.title}>
+            <Card key={stat.title} className="min-h-[92px]">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.title}
-                </CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                <Icon className="h-6 w-6 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
                   <div className="text-2xl font-bold">{stat.value}</div>
-                  <Button asChild variant="ghost" size="icon">
+                  <Button asChild variant="ghost" size="icon" className="min-h-[44px] min-w-[44px]">
                     <Link href={stat.href}>
-                      <Plus className="h-4 w-4" />
+                      <Plus className="h-5 w-5" />
                     </Link>
                   </Button>
                 </div>

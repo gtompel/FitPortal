@@ -39,7 +39,7 @@ export async function PATCH(req: Request, { params }: PlannerRouteProps) {
 
     return NextResponse.json(event)
   } catch (error) {
-    console.error("[PLANNER_PATCH]", error)
+    //    console.error("[PLANNER_PATCH]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 }
@@ -70,7 +70,7 @@ export async function DELETE(req: Request, { params }: PlannerRouteProps) {
 
     return new NextResponse(null, { status: 204 })
   } catch (error) {
-    console.error("[PLANNER_DELETE]", error)
+    //    console.error("[PLANNER_DELETE]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 } 

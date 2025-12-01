@@ -4,6 +4,24 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-top: env(safe-area-inset-top);
+  font-size: theme('fontSize.base');
+  line-height: theme('lineHeight.snug');
+}
+
+.button-touch {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+}
+
+img,
+.next-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
 }
 
 @layer utilities {

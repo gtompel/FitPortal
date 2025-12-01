@@ -28,7 +28,6 @@ export async function PATCH(
 
     return NextResponse.json(category);
   } catch (error) {
-    console.error('[CATEGORY_PATCH]', error);
     return new NextResponse('Internal error', { status: 500 });
   }
 }
@@ -50,7 +49,6 @@ export async function DELETE(
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error('[CATEGORY_DELETE]', error);
     return new NextResponse('Internal error', { status: 500 });
   }
 } 

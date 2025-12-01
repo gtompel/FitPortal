@@ -25,26 +25,26 @@ export default async function PlannerPage() {
 
   if (!events.length) {
     return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-3xl font-bold mb-8">Планировщик</h1>
+      <div className="container mx-auto px-2 sm:px-4 py-8">
+        <h1 className="font-bold mb-5" style={{fontSize:'clamp(1.6rem,4.5vw,2.5rem)'}}>Планировщик</h1>
         <p>У вас пока нет запланированных событий</p>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8">Планировщик</h1>
-      <div className="grid gap-6 md:grid-cols-2">
-        <div>
+    <div className="container mx-auto px-2 sm:px-4 py-8">
+      <h1 className="font-bold mb-5" style={{fontSize:'clamp(1.6rem,4.5vw,2.5rem)'}}>Планировщик</h1>
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+        <div className="min-w-0">
           <Calendar />
         </div>
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {events.map((event) => (
-            <div key={event.id} className="p-4 border rounded-lg">
-              <h3 className="font-semibold">{event.title}</h3>
-              <p className="text-sm text-gray-600">{event.description}</p>
-              <div className="text-sm text-gray-500 mt-2">
+            <div key={event.id} className="p-4 border rounded-lg min-h-[100px]">
+              <h3 className="font-semibold text-base md:text-lg mb-1">{event.title}</h3>
+              <p className="text-sm text-gray-600 leading-snug">{event.description}</p>
+              <div className="text-xs text-gray-500 mt-2">
                 <p>Начало: {new Date(event.start).toLocaleString()}</p>
                 <p>Конец: {new Date(event.end).toLocaleString()}</p>
                 {session.user.role === "ADMIN" && (

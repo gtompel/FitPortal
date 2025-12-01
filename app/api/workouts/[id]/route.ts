@@ -41,7 +41,7 @@ export async function PATCH(req: Request, { params }: WorkoutRouteProps) {
 
     return NextResponse.json(workout)
   } catch (error) {
-    console.error("[WORKOUT_PATCH]", error)
+    //    console.error("[WORKOUT_PATCH]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 }
@@ -62,7 +62,7 @@ export async function DELETE(req: Request, { params }: WorkoutRouteProps) {
 
     return NextResponse.json(workout)
   } catch (error) {
-    console.error("[WORKOUT_DELETE]", error)
+    //    console.error("[WORKOUT_DELETE]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 } 

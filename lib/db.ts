@@ -5,7 +5,7 @@ declare global {
 }
 
 export const db = globalThis.prisma || new PrismaClient({
-  log: ['query'],
+  log: ['error', 'warn', 'info'],
   errorFormat: 'pretty',
   // Включаем кэширование
   __internal: {

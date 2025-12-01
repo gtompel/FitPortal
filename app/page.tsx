@@ -10,21 +10,20 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-900/10">
-        <div className="container px-4 md:px-6">
-          <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
-            <div className="flex flex-col justify-center space-y-4">
+      <section className="w-full py-8 sm:py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-900/10">
+        <div className="container px-2 sm:px-4 md:px-6">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
+            <div className="flex flex-col justify-center space-y-3 sm:space-y-4">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-green-700 dark:text-green-300">
+                <h1 className="font-bold tracking-tighter text-green-700 dark:text-green-300" style={{fontSize:'clamp(2rem,8vw,4rem)',lineHeight:'1.2'}}>
                   Трансформируйте свое тело, изменяйте свою жизнь
                 </h1>
-                <p className="max-w-[600px] text-gray-600 dark:text-gray-300 md:text-xl">
-                  Персонализированные тренировки, экспертные советы и поддержка сообщества для достижения ваших
-                  фитнес-целей.
+                <p className="max-w-[600px] text-gray-600 dark:text-gray-300 text-base sm:text-lg md:text-xl leading-relaxed">
+                  Персонализированные тренировки, экспертные советы и поддержка сообщества для достижения ваших фитнес-целей.
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                <Button asChild className="bg-green-600 hover:bg-green-700 text-white">
+                <Button asChild className="bg-green-600 hover:bg-green-700 text-white min-h-[44px]">
                   <Link href="/free">
                     Начать бесплатно
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -32,25 +31,27 @@ export default function Home() {
                 </Button>
                 <Link
                   href="/workouts"
-                  className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className="inline-flex items-center justify-center rounded-md border border-input bg-background px-8 min-h-[44px] text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
                   Наши программы
                 </Link>
               </div>
             </div>
-            <div className="relative h-[300px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden">
+            <div className="relative h-[220px] xs:h-[280px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden">
               <Image
                 src="/placeholder.svg?height=500&width=600"
                 alt="Фитнес тренировка"
                 fill
                 className="object-cover"
                 priority
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                fetchPriority="high"
               />
               <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                 <Button
                   variant="outline"
                   size="icon"
-                  className="rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 h-16 w-16"
+                  className="rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 h-16 w-16 min-h-[44px] min-w-[44px]"
                 >
                   <Play className="h-8 w-8 text-white" />
                   <span className="sr-only">Смотреть видео</span>
@@ -63,10 +64,10 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="w-full py-12 md:py-24 lg:py-32 bg-white dark:bg-gray-950">
-        <div className="container px-4 md:px-6">
+        <div className="container px-2 sm:px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-green-700 dark:text-green-300">
+              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-green-700 dark:text-green-300" style={{fontSize:'clamp(2rem,8vw,4rem)',lineHeight:'1.2'}}>
                 Все, что нужно для вашего фитнес-путешествия
               </h2>
               <p className="max-w-[900px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -127,9 +128,9 @@ export default function Home() {
 
       {/* Featured Workouts */}
       <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-50 dark:bg-gray-900">
-        <div className="container px-4 md:px-6">
+        <div className="container px-2 sm:px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-10">
-            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-green-700 dark:text-green-300">
+            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-green-700 dark:text-green-300" style={{fontSize:'clamp(2rem,8vw,4rem)',lineHeight:'1.2'}}>
               Популярные тренировки
             </h2>
             <p className="max-w-[900px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -151,9 +152,9 @@ export default function Home() {
 
       {/* Latest Articles */}
       <section className="w-full py-12 md:py-24 lg:py-32 bg-white dark:bg-gray-950">
-        <div className="container px-4 md:px-6">
+        <div className="container px-2 sm:px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-10">
-            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-green-700 dark:text-green-300">
+            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-green-700 dark:text-green-300" style={{fontSize:'clamp(2rem,8vw,4rem)',lineHeight:'1.2'}}>
               Последние статьи
             </h2>
             <p className="max-w-[900px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -175,8 +176,8 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="w-full py-12 md:py-24 lg:py-32 bg-green-600 dark:bg-green-800">
-        <div className="container px-4 md:px-6 flex flex-col items-center text-center space-y-4">
-          <h2 className="text-3xl font-bold tracking-tighter text-white md:text-4xl/tight">
+        <div className="container px-2 sm:px-4 md:px-6 flex flex-col items-center text-center space-y-4">
+          <h2 className="text-3xl font-bold tracking-tighter text-white md:text-4xl/tight" style={{fontSize:'clamp(2rem,8vw,4rem)',lineHeight:'1.2'}}>
             Готовы начать свое фитнес-путешествие?
           </h2>
           <p className="max-w-[600px] text-green-50 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">

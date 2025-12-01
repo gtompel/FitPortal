@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(event)
   } catch (error) {
-    console.error("[PLANNER_POST]", error)
+    //    console.error("[PLANNER_POST]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 } 

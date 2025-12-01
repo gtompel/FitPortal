@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(plan)
   } catch (error) {
-    console.error("[NUTRITION_POST]", error)
+    //    console.error("[NUTRITION_POST]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 }
@@ -53,7 +53,7 @@ export async function GET() {
 
     return NextResponse.json(plans)
   } catch (error) {
-    console.error("[NUTRITION_GET]", error)
+    //    console.error("[NUTRITION_GET]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 } 

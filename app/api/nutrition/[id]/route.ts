@@ -97,7 +97,6 @@ export async function DELETE(
 
     return NextResponse.json(plan)
   } catch (error) {
-    console.error("[NUTRITION_DELETE]", error)
     return new NextResponse("Internal error", { status: 500 })
   }
 } 

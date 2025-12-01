@@ -40,13 +40,13 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Личный кабинет</h1>
+    <div className="container mx-auto px-2 sm:px-4 py-8">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
+        <h1 className="font-bold" style={{fontSize:'clamp(1.6rem,4.5vw,2.5rem)'}}>Личный кабинет</h1>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="min-h-[90px]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Тренировки</CardTitle>
             <Dumbbell className="h-4 w-4 text-muted-foreground" />
@@ -59,7 +59,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="min-h-[90px]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Планы</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -75,21 +75,15 @@ export default async function DashboardPage() {
 
       <div className="mt-8">
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList>
-            <TabsTrigger value="profile">Профиль</TabsTrigger>
-            <TabsTrigger value="workouts">Тренировки</TabsTrigger>
-            <TabsTrigger value="plans">Планы</TabsTrigger>
-          </TabsList>
+          <TabsList className="w-full flex flex-wrap gap-2 mb-4"/>
           <TabsContent value="profile">
             <Card>
               <CardHeader>
                 <CardTitle>Информация о профиле</CardTitle>
-                <CardDescription>
-                  Управление личными данными
-                </CardDescription>
+                <CardDescription>Управление личными данными</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div>
                     <h3 className="text-sm font-medium">Имя</h3>
                     <p className="text-sm text-muted-foreground">{user.name}</p>
@@ -98,7 +92,7 @@ export default async function DashboardPage() {
                     <h3 className="text-sm font-medium">Email</h3>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                   </div>
-                  <Button>Редактировать профиль</Button>
+                  <Button className="min-h-[44px]">Редактировать профиль</Button>
                 </div>
               </CardContent>
             </Card>
@@ -107,31 +101,23 @@ export default async function DashboardPage() {
             <Card>
               <CardHeader>
                 <CardTitle>История тренировок</CardTitle>
-                <CardDescription>
-                  Список завершенных тренировок
-                </CardDescription>
+                <CardDescription>Список завершенных тренировок</CardDescription>
               </CardHeader>
               <CardContent>
                 {user.workouts.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {user.workouts.map((workout) => (
-                      <div key={workout.id} className="flex items-center justify-between">
+                      <div key={workout.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
                         <div>
                           <h3 className="font-medium">{workout.title}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {workout.duration} мин • {workout.level}
-                          </p>
+                          <p className="text-sm text-muted-foreground">{workout.duration} мин • {workout.level}</p>
                         </div>
-                        <Button variant="outline" size="sm">
-                          Повторить
-                        </Button>
+                        <Button variant="outline" size="sm" className="min-h-[40px]">Повторить</Button>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">
-                    У вас пока нет завершенных тренировок
-                  </p>
+                  <p className="text-sm text-muted-foreground">У вас пока нет завершенных тренировок</p>
                 )}
               </CardContent>
             </Card>
@@ -140,31 +126,25 @@ export default async function DashboardPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Активные планы</CardTitle>
-                <CardDescription>
-                  Ваши текущие планы тренировок
-                </CardDescription>
+                <CardDescription>Ваши текущие планы тренировок</CardDescription>
               </CardHeader>
               <CardContent>
                 {user.plans.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {user.plans.map((plan) => (
-                      <div key={plan.id} className="flex items-center justify-between">
+                      <div key={plan.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
                         <div>
                           <h3 className="font-medium">{plan.title}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(plan.startDate).toLocaleDateString()} - {new Date(plan.endDate).toLocaleDateString()}
-                          </p>
+                          <p className="text-sm text-muted-foreground">{
+                            new Date(plan.startDate).toLocaleDateString()
+                          } - {new Date(plan.endDate).toLocaleDateString()}</p>
                         </div>
-                        <Button variant="outline" size="sm">
-                          Подробнее
-                        </Button>
+                        <Button variant="outline" size="sm" className="min-h-[40px]">Подробнее</Button>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">
-                    У вас пока нет активных планов
-                  </p>
+                  <p className="text-sm text-muted-foreground">У вас пока нет активных планов</p>
                 )}
               </CardContent>
             </Card>
