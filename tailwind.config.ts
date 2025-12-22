@@ -25,24 +25,24 @@ const config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "hsl(160, 100%, 25%)", // Изумрудный
+          foreground: "hsl(0, 0%, 98%)",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "hsl(170, 70%, 85%)", // Мятный
+          foreground: "hsl(0, 0%, 98%)",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "hsl(0, 84.2%, 60.2%)",
+          foreground: "hsl(0, 0%, 98%)",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "hsl(0, 0%, 14.9%)",
+          foreground: "hsl(0, 0%, 63.9%)",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "hsl(160, 100%, 35%)", // Изумрудный светлый
+          foreground: "hsl(0, 0%, 98%)",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
@@ -70,6 +70,20 @@ const config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      backgroundColor: {
+        'dark-green': 'hsl(160, 100%, 25%)',
+        'light-green': 'hsl(160, 100%, 35%)',
+        'dark-black': 'hsl(0, 0%, 10%)',
+        'neon-accent': 'hsl(160, 100%, 45%)',
+        'mint': 'hsl(170, 70%, 85%)',
+      },
+      textColor: {
+        'dark-green': 'hsl(160, 100%, 25%)',
+        'light-green': 'hsl(160, 100%, 35%)',
+        'dark-black': 'hsl(0, 0%, 10%)',
+        'neon-accent': 'hsl(160, 100%, 45%)',
+        'mint': 'hsl(170, 70%, 85%)',
       },
       keyframes: {
         "accordion-down": {

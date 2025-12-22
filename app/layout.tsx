@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { JetBrains_Mono } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/providers/theme-provider"
 import AuthProvider from "@/providers/auth-provider"
@@ -7,11 +7,12 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Toaster } from "sonner"
 
-const inter = Inter({ subsets: ["latin", "cyrillic"] })
+const jetbrainsMono = JetBrains_Mono({ subsets: ["latin", "cyrillic"] })
 
 export const metadata: Metadata = {
   title: "FitPortal - Ваш персональный фитнес-портал",
   description: "Персональный фитнес-портал для достижения ваших целей",
+  manifest: "/manifest.json",
 }
 
 export const dynamic = 'force-dynamic'
@@ -24,7 +25,35 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={jetbrainsMono.className}>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                  console.log('SW registered: ', registration);
+                }, function(err) {
+                  console.log('SW registration failed: ', err);
+                });
+              });
+            }
+          `,
+        }} />
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            // Workbox window registration
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                // Проверяем обновления service worker каждые 10 минут
+                setInterval(() => {
+                  navigator.serviceWorker.ready.then(registration => {
+                    registration.update();
+                  });
+                }, 1000 * 60 * 10);
+              });
+            }
+          `,
+        }} />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -37,6 +66,7 @@ export default function RootLayout({
               <main className="flex-1 text-base leading-snug">{children}</main>
               <Footer />
             </div>
+
             <Toaster />
           </AuthProvider>
         </ThemeProvider>

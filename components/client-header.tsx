@@ -17,7 +17,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 import { useMobile } from "@/hooks/use-mobile"
-import { Menu } from "lucide-react"
+import { Menu, User } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 
 interface Category {
@@ -60,10 +60,9 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
     <>
       <div className="flex items-center gap-2 md:hidden">
         {/* мобильное меню — только на xs/sm */}
-        <ThemeToggle />
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="hover:bg-primary/10">
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle menu</span>
             </Button>
@@ -77,8 +76,8 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
                 <Link
                   href="/"
                   className={cn(
-                    "text-lg font-medium transition-colors hover:text-green-600 dark:hover:text-green-400",
-                    pathname === "/" ? "text-green-600 dark:text-green-400" : "text-gray-600 dark:text-gray-300",
+                    "text-lg font-medium transition-colors hover:text-primary",
+                    pathname === "/" ? "text-primary" : "text-muted-foreground",
                   )}
                 >
                   Главная
@@ -86,10 +85,10 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
                 <Link
                   href="/workouts"
                   className={cn(
-                    "text-lg font-medium transition-colors hover:text-green-600 dark:hover:text-green-400",
+                    "text-lg font-medium transition-colors hover:text-primary",
                     pathname === "/workouts" || pathname.startsWith("/workouts/")
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-gray-600 dark:text-gray-300",
+                      ? "text-primary"
+                      : "text-muted-foreground",
                   )}
                 >
                   Тренировки
@@ -97,10 +96,10 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
                 <Link
                   href="/blog"
                   className={cn(
-                    "text-lg font-medium transition-colors hover:text-green-600 dark:hover:text-green-400",
+                    "text-lg font-medium transition-colors hover:text-primary",
                     pathname === "/blog" || pathname.startsWith("/blog/")
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-gray-600 dark:text-gray-300",
+                      ? "text-primary"
+                      : "text-muted-foreground",
                   )}
                 >
                   Блог
@@ -108,10 +107,10 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
                 <Link
                   href="/nutrition"
                   className={cn(
-                    "text-lg font-medium transition-colors hover:text-green-600 dark:hover:text-green-400",
+                    "text-lg font-medium transition-colors hover:text-primary",
                     pathname === "/nutrition"
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-gray-600 dark:text-gray-300",
+                      ? "text-primary"
+                      : "text-muted-foreground",
                   )}
                 >
                   Питание
@@ -119,8 +118,8 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
                 <Link
                   href="/planner"
                   className={cn(
-                    "text-lg font-medium transition-colors hover:text-green-600 dark:hover:text-green-400",
-                    pathname === "/planner" ? "text-green-600 dark:text-green-400" : "text-gray-600 dark:text-gray-300",
+                    "text-lg font-medium transition-colors hover:text-primary",
+                    pathname === "/planner" ? "text-primary" : "text-muted-foreground",
                   )}
                 >
                   Планировщик
@@ -128,8 +127,10 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
                 <div className="pt-4 space-y-2">
                   {session ? (
                     <>
-                      <Button asChild className="w-full bg-green-600 hover:bg-green-700 text-white">
-                        <Link href="/dashboard">Личный кабинет</Link>
+                      <Button asChild className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                        <Link href="/dashboard" className="flex items-center gap-2">
+                          <User className="h-5 w-5" />
+                        </Link>
                       </Button>
                       <Button 
                         variant="outline" 
@@ -141,7 +142,7 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
                     </>
                   ) : (
                     <>
-                      <Button asChild className="w-full bg-green-600 hover:bg-green-700 text-white">
+                      <Button asChild className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                         <Link href="/login">Войти</Link>
                       </Button>
                       <Button asChild variant="outline" className="w-full">
@@ -154,29 +155,33 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
           </SheetContent>
         </Sheet>
       </div>
-      <div className="hidden md:flex items-center gap-6">
+      <div className="hidden md:flex items-center gap-4">
         {/* десктоп-меню — только на md+ */}
         <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/">
-                    Главная
+                  <Link href="/" className="flex items-center gap-1">
+                    <span>🏃‍♀️</span>
+                    <span>Главная</span>
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuTrigger
-                  className={pathname.startsWith("/workouts") ? "text-green-600 dark:text-green-400" : ""}
+                  className={pathname.startsWith("/workouts") ? "text-primary border-b-2 border-primary" : ""}
                 >
-                  Тренировки
+                  <span className="flex items-center gap-1">
+                    <span>🏋️</span>
+                    <span>Тренировки</span>
+                  </span>
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid gap-3 p-6 w-[400px] grid-cols-2">
                     <li className="row-span-3">
                       <NavigationMenuLink asChild>
                         <a
-                          className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-green-500 to-green-700 p-6 no-underline outline-none focus:shadow-md"
+                          className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-primary to-primary/80 p-6 no-underline outline-none focus:shadow-md"
                           href="/workouts"
                         >
                           <div className="mt-4 mb-2 text-lg font-medium text-white">Все программы</div>
@@ -190,13 +195,21 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
                       <li key={category.id}>
                         <NavigationMenuLink asChild>
                           <a
-                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            className="flex select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground items-center gap-2"
                             href={`/workouts/${category.slug}`}
                           >
-                            <div className="text-sm font-medium leading-none">{category.name}</div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Тренировки в категории {category.name}
-                            </p>
+                            <span>
+                              {category.slug === 'cardio' && '🏃'}
+                              {category.slug === 'strength' && '💪'}
+                              {category.slug === 'flexibility' && '🧘'}
+                              {!['cardio', 'strength', 'flexibility'].includes(category.slug) && '🏋️'}
+                            </span>
+                            <div>
+                              <div className="text-sm font-medium leading-none">{category.name}</div>
+                              <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                                Тренировки в категории {category.name}
+                              </p>
+                            </div>
                           </a>
                         </NavigationMenuLink>
                       </li>
@@ -206,22 +219,25 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/blog">
-                    Блог
+                  <Link href="/blog" className="flex items-center gap-1">
+                    <span>📝</span>
+                    <span>Блог</span>
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/nutrition">
-                    Питание
+                  <Link href="/nutrition" className="flex items-center gap-1">
+                    <span>🥗</span>
+                    <span>Питание</span>
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/planner">
-                    Планировщик
+                  <Link href="/planner" className="flex items-center gap-1">
+                    <span>📅</span>
+                    <span>Планировщик</span>
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -236,12 +252,14 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
               )}
             </NavigationMenuList>
           </NavigationMenu>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <ThemeToggle />
             {session ? (
               <>
-                <Button asChild variant="ghost" size="sm">
-                  <Link href="/dashboard">Личный кабинет</Link>
+                <Button asChild variant="ghost" size="sm" className="hover:bg-primary/10">
+                  <Link href="/dashboard" className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                  </Link>
                 </Button>
                 <Button 
                   variant="outline" 
@@ -253,10 +271,10 @@ export default function ClientHeader({ session }: ClientHeaderProps) {
               </>
             ) : (
               <>
-                <Button asChild variant="ghost" size="sm">
+                <Button asChild variant="ghost" size="sm" className="hover:bg-primary/10">
                   <Link href="/login">Войти</Link>
                 </Button>
-                <Button asChild size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
                   <Link href="/register">Регистрация</Link>
                 </Button>
               </>

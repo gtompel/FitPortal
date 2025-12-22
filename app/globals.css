@@ -38,14 +38,14 @@ img,
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
+    --primary: 160 100% 25%; /* Изумрудный */
     --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
+    --secondary: 170 70% 85%; /* Мятный */
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --accent: 160 100% 35%; /* Светлый изумрудный */
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
@@ -65,6 +65,7 @@ img,
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --neon-accent: 160 100% 45%; /* Неоновый акцент */
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -73,13 +74,13 @@ img,
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
+    --primary: 160 100% 35%; /* Светлый изумрудный */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 170 70% 85%; /* Мятный */
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
+    --accent: 160 100% 25%; /* Изумрудный */
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -99,6 +100,7 @@ img,
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --neon-accent: 160 100% 45%; /* Неоновый акцент */
   }
 }
 
@@ -107,6 +109,51 @@ img,
     @apply border-border;
   }
   body {
+  
+  /* Градиенты */
+  .gradient-emerald {
+    background: linear-gradient(135deg, hsl(160, 100%, 25%), hsl(160, 100%, 35%));
+  }
+  
+  .gradient-mint {
+    background: linear-gradient(135deg, hsl(170, 70%, 85%), hsl(160, 100%, 35%));
+  }
+  
+  /* Анимации */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 hsl(160, 100%, 45%); }
+    70% { box-shadow: 0 0 0 10px hsl(160, 100%, 45%, 0); }
+    100% { box-shadow: 0 0 0 0 hsl(160, 100%, 45%, 0); }
+  }
+  
+  .pulse {
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes buttonHover {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 hsl(160, 100%, 45%, 0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 10px hsl(160, 100%, 45%, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 hsl(160, 100%, 45%, 0); }
+  }
+  
+  .button-hover {
+    transition: all 0.3s ease;
+  }
+  
+  .button-hover:hover {
+    animation: buttonHover 0.6s ease;
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px hsl(160, 100%, 45%, 0.4);
+  }
     @apply bg-background text-foreground;
   }
 }

@@ -22,9 +22,6 @@ export default function DashboardClient({ user, levelMap }: DashboardClientProps
   return (
     <div className="container px-4 py-8 md:px-6 md:py-12">
       <div className="flex flex-col space-y-4 mb-8">
-        <h1 className="text-3xl font-bold tracking-tighter md:text-4xl text-green-700 dark:text-green-300">
-          Личный кабинет
-        </h1>
         <p className="text-gray-600 dark:text-gray-300 max-w-3xl">
           Добро пожаловать, {user.name}! Здесь вы можете отслеживать свой прогресс и
           управлять тренировками.
