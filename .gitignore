@@ -22,8 +22,10 @@ package-lock.json
 
 # vercel
 .vercel
-.vscode
 
+#my
+.vscode
+/src/*
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -5,15 +5,9 @@ declare global {
 }
 
 export const db = globalThis.prisma || new PrismaClient({
-  log: ['error', 'warn', 'info'],
+  log: ['error', 'warn'], // Убран 'info' чтобы отключить логи Accelerate
   errorFormat: 'pretty',
-  // Включаем кэширование
-  __internal: {
-    engine: {
-      enableQueryCache: true,
-      queryCacheSize: 1000
-    }
-  }
-})
 
-if (process.env.NODE_ENV !== "production") globalThis.prisma = db 
+  })
+
+if (process.env.NODE_ENV !== "production") globalThis.prisma = db

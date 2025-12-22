@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import FeaturedWorkouts from "@/components/featured-workouts"
 import LatestArticles from "@/components/latest-articles"
+import { PushNotificationManager, InstallPrompt } from "./page-client"
 
 export default function Home() {
   return (
@@ -58,6 +59,16 @@ export default function Home() {
                 </Button>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Push Notifications and Install Prompt */}
+      <section className="w-full py-12 bg-gray-50 dark:bg-gray-900">
+        <div className="container px-2 sm:px-4 md:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <PushNotificationManager />
+            <InstallPrompt />
           </div>
         </div>
       </section>
