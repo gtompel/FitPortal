@@ -121,7 +121,7 @@ const withPWA = nextPWA({
   ],
   // Исключения для кэширования
   publicExcludes: ['!sw.js', '!workbox-*.js', '!custom-sw.js'],
-  buildExcludes: [/middleware-manifest\.json$/],
+  buildExcludes: [/middleware-manifest\.json$/, /app-build-manifest\.json$/],
   // Исключение кэширования для медиа-сегментов
 })
 
